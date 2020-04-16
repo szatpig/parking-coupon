@@ -7,32 +7,19 @@ import api from '@@/config'
 //webpackChunkName 一定要写，是code split 后的命名 [ChunkName].[hash].js
 const Home = () => import(/* webpackChunkName: "home" */ '@/pages/home');
 
-const Account = () => import(/* webpackChunkName: "account" */ '@/pages/user/account');
+const Coupon = () => import(/* webpackChunkName: "user'" */ '@/pages/coupon');
+
+const Parking = () => import(/* webpackChunkName: "user'" */ '@/pages/parking');
+
 const User = () => import(/* webpackChunkName: "user'" */ '@/pages/user');
-const Union = () => import(/* webpackChunkName: "user'" */ '@/pages/user/union');
+const Car = () => import(/* webpackChunkName: "car'" */ '@/pages/user/car');
+const Setting = () => import(/* webpackChunkName: "car'" */ '@/pages/user/setting');
+const Coupons = () => import(/* webpackChunkName: "car'" */ '@/pages/user/coupons');
+const Equity = () => import(/* webpackChunkName: "car'" */ '@/pages/user/equity');
 
 // const Author = () => import(/* webpackChunkName: "auth" */ '@/pages/auth/auth');
 const Login = () => import(/* webpackChunkName: "login" */ '@/pages/auth/login');
-
-const CallList = () => import(/* webpackChunkName: "list" */ '@/pages/call/list');
-const CallDetail = () => import(/* webpackChunkName: "listDetail" */ '@/pages/call/detail');
-const Called = () => import(/* webpackChunkName: "called" */ '@/pages/call/called');
-
-const Refuse = () => import(/* webpackChunkName: "listDetail" */ '@/pages/refuse/refuseScene');
-const Scene = () => import(/* webpackChunkName: "configure" */ '@/pages/scene');
-const Configure = () => import(/* webpackChunkName: "configure" */ '@/pages/scene/configure');
-const Config = () => import(/* webpackChunkName: "configure" */ '@/pages/scene/sceneConfig');
-const Audio = () => import(/* webpackChunkName: "selectAudio" */ '@/pages/scene/selectAudio');
-
-const CallSetting = () => import(/* webpackChunkName: "setting" */ '@/pages/callsetting/setting');
-const CallTest = () => import(/* webpackChunkName: "test" */ '@/pages/callsetting/test');
-
-
-const Operation = () =>import(/* webpackChunkName: "operation" */ '@/pages/operation/operation');
-const SerAgreement = () =>import(/* webpackChunkName: "operation" */ '@/pages/operation/serviceAgreement');
-
-const Feedback = () =>import(/* webpackChunkName: "feedback" */ '@/pages/feedback');
-const QA = () =>import(/* webpackChunkName: "feedback" */ '@/pages/feedback/qa');
+const Register = () => import(/* webpackChunkName: "login" */ '@/pages/auth/regist');
 
 const routes =[
     {
@@ -45,12 +32,19 @@ const routes =[
         },
         children:[
             {
-                path:'account',
-                component:User,
-                name:'account',
+                path:'parking',
+                component:Parking,
+                name:'parking',
                 meta:{
-                    title:'用户中心',
-                    keepAlive:false
+                    title:'领券中心'
+                }
+            },
+            {
+                path:'coupon',
+                component:Coupon,
+                name:'coupon',
+                meta:{
+                    title:'停车'
                 }
             },
             {
@@ -58,153 +52,42 @@ const routes =[
                 component:User,
                 name:'user',
                 meta:{
-                    title:'用户中心',
-                    keepAlive:false
+                    title:'用户中心'
                 }
             },
             {
-                path:'union',
-                component:Union,
-                name:'user',
+                path:'user/car',
+                component:Car,
+                name:'car',
                 meta:{
-                    title:'用户中心',
-                    keepAlive:false
-                }
-            },
-            //通话记录模块
-            {
-                path:'call',
-                component:CallList,
-                name:'call',
-                meta:{
-                    title:'接听记录',
-                    keepAlive:true,
-                    isUseCache:false
-                }
-            }, {
-                path: 'call/:id',
-                component: CallDetail,
-                name: 'callDetail',
-                meta: {
-                    title: '通话详情',
-                    keepAlive:false
-                }
-            }, {
-                path: 'called/:calledType',
-                component: Called,
-                name: 'Called',
-                meta: {
-                    title: '名单',
-                    keepAlive:false
-                }
-            },
-            // 拒绝场景模块
-            {
-                path: 'refuse',
-                component: Refuse,
-                name: 'Refuse',
-                meta: {
-                    title: '拒绝场景',
-                    keepAlive:false
-                }
-            },
-            //通话记录模块结束
-
-            //话术配置
-            {
-                path:'scene',
-                component:Scene,
-                name:'scene',
-                meta:{
-                    title:'话术配置',
-                    keepAlive:false
+                    title:'我的车辆'
                 }
             },
             {
-                path:'scene/audio/:scrid/:sctid',
-                component:Audio,
-                name:'audio',
+                path:'user/setting',
+                component:Setting,
+                name:'setting',
                 meta:{
-                    title:'我的助理',
-                    keepAlive:false
+                    title:'设置'
                 }
             },
             {
-                path:'scene/configure',
-                component:Configure,
-                name:'configure',
+                path:'user/coupons',
+                component:Coupons,
+                name:'coupons',
                 meta:{
-                    title:'话术配置',
-                    keepAlive:false
+                    title:'我的停车券'
                 }
             },
-            //话术配置
             {
-                path:'scene/config',
-                component:Config,
-                name:'sceneConfig',
+                path:'user/equity',
+                component:Equity,
+                name:'equity',
                 meta:{
-                    title:'话术配置',
-                    keepAlive:false
+                    title:'我的权益金'
                 }
             },
-            //话术配置结束
-            //呼叫设置模块
-            {
-                path:'tel/setting',
-                component:CallSetting,
-                name:'callSetting',
-                meta:{
-                    title:'步骤一',
-                    keepAlive:false
-                }
-            },{
-                path:'tel/test',
-                component:CallTest,
-                name:'callTest',
-                meta:{
-                    title:'步骤二',
-                    keepAlive:false
-                }
-            },
-            //呼叫设置模块结束
-            //操作说明
-            {
-                path:'operation',
-                component: Operation,
-                name:'operation',
-                meta:{
-                    title:'操作说明',
-                keepAlive:false
-                }
-            },
-            //用户反馈
-            {
-                path:'feedback',
-                component: Feedback,
-                name:'feedback',
-                meta:{
-                    title:'用户反馈',
-                    keepAlive:false
-                }
-            },{//常见问题
-                path:'feedback/qa',
-                component: QA,
-                name:'qa',
-                meta:{
-                    title:'常见问题',
-                    keepAlive:false
-                }
-            }
         ]
-    }, {
-        path:'/serAgreement',
-        component: SerAgreement,
-        name:'serAgreement',
-        meta:{
-            title:'用户服务协议',
-            keepAlive:false
-        }
     },
     // {
     //      path:'/author',
@@ -215,9 +98,18 @@ const routes =[
     //      }
     // },
     {
+        path:'/register',
+        component:Register,
+        name:'register',
+        meta:{
+            title:'用户注册',
+            keepAlive:false
+        }
+    },
+    {
         path:'/login',
         component:Login,
-        name:'name',
+        name:'login',
         meta:{
            title:'用户登录',
             keepAlive:false
@@ -227,7 +119,7 @@ const routes =[
         path: '*',
         component: ()=>{
             router.push({
-                path: '/home/union'
+                path: '/login'
             })
         }
     }
@@ -235,7 +127,7 @@ const routes =[
 
 const router = new Router({
     mode: 'history',
-    base:`${ api.urlPrefix.replace(/\/api/g,'')}/unicom/wapwx/wx/`,
+    base:`/`,
     routes,
     scrollBehavior (to, from, position) {
         if (position) {
@@ -246,7 +138,6 @@ const router = new Router({
     }
 });
 
-const ua = window.navigator.userAgent.toLowerCase();
 
 router.beforeEach((to, from, next) => {
 
@@ -255,7 +146,7 @@ router.beforeEach((to, from, next) => {
         store.dispatch('setUserToken', to.query.token)
     }
     if (to.meta.title) {
-        document.title = to.meta.title + '- 山东联通防骚扰'
+        document.title = to.meta.title + '- 停车券'
     }
     next();
 

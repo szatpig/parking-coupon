@@ -58,7 +58,7 @@
         </p>
         <p class="ad-wrap">
             <a href="https://assistant.ynt.ai/app_download_page/index.html?random=201904291905">
-                <img src="../../images/ad.png" alt="">
+                <img src="" alt="">
             </a>
         </p>
     </div>
@@ -224,7 +224,7 @@
             }
         },
         created() {
-            this.init();
+            // this.init();
         }
     }
 </script>
@@ -241,7 +241,7 @@
             display: flex;
             flex-flow: row nowrap;
             justify-content: flex-start;
-            background: url("../../images/head.png") center center no-repeat;
+            background: url("") center center no-repeat;
             background-size: cover;
             position: relative;
             img{

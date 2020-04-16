@@ -16,7 +16,7 @@ const externals = {
 
 module.exports = {
     publicPath: process.env.NODE_ENV === 'production'
-            ? `${ process.env.VUE_APP_PREFIX }/wapwx/wx/` //这里是打包正式配置 eg: outbound.ynt.ai:7001/crm/#/login
+            ? `/` //这里是打包正式配置 eg: outbound.ynt.ai:7001/crm/#/login
             : '/',
     outputDir:'docs',
     productionSourceMap: false,

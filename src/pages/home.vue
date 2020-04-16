@@ -3,16 +3,20 @@
         <transition name="fade" mode="out-in">
             <router-view />
         </transition>
+        <MenuLayout />
     </div>
 </template>
 
 <script>
+    import MenuLayout from '@/components/Menu'
     export default {
         name: "home",
         data() {
             return {}
         },
-        components: {},
+        components: {
+            MenuLayout
+        },
         methods: {},
         computed: {},
         mounted(){

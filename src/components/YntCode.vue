@@ -56,7 +56,9 @@
         display: inline-block;
         button {
             width:100%;
-            font-size: 30px;
+            height: 26px;
+            line-height: 26px;
+            font-size: 28px;
             color: #3F8FFE;
             text-align: center;
             border: none;

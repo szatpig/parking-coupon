@@ -1,7 +1,7 @@
 <template>
     <div class="user-container">
         <div class="head-wrap">
-            <img src="../../images/union-headImg.png" alt="用户头像">
+            <img src="" alt="用户头像">
             <div class="user-wrap">
                 <p> {{ user.nickname }} 
                     <!-- <i class="disabled">未开通</i> -->
@@ -13,9 +13,9 @@
             <!--<span class="icon icon-edit" @click="handleLinkFeedback">帮助与反馈</span>-->
         </div>
         <div class="type-wrap">
-            <span @click="handleLink('/home/called/black')"><img src="./../../images/type-union-1.png" alt=""><i>黑名单</i></span>
-            <span @click="handleLink('/home/called/white')"><img src="./../../images/type-union-2.png" alt=""><i>白名单</i></span>
-            <span @click="handleLink('/home/call')"><img src="./../../images/type-union-3.png" alt=""><i>通话记录</i></span>
+            <span @click="handleLink('/home/called/black')"><img src="" alt=""><i>黑名单</i></span>
+            <span @click="handleLink('/home/called/white')"><img src="" alt=""><i>白名单</i></span>
+            <span @click="handleLink('/home/call')"><img src="" alt=""><i>通话记录</i></span>
         </div>
         <div class="intercept-wrap">
             <p class="intercept-title">拦截记录推送方式</p>
@@ -322,27 +322,10 @@
             }
         },
         created() {
-            // this.init();         //微信登陆, 山东联通不做
-            this.$route.query.phone && (this.user.phoneNumber = this.$route.query.phone)
-            //获取用户推送方式
-            getPushSetting().then(res => {
-                if(res.msg == "成功"){
-                    const { data } = res
-                    for (let item in data) {
-                        if(data[item] == true){
-                            if(item == "noPush") { this.intercept = 0 }
-                            else if( item == "wxmpPush" ) { this.intercept = 2 }
-                            else if(item == "smsPush") { this.intercept = 1 }
-                        }
-                    }
 
-                    
-                }
-            })
         },
         beforeRouteLeave (to, from, next) {
-            to.params.calledType == "black" ? to.meta.title = "黑名单" : to.meta.title = "白名单"
-            next()
+
         }
     }
 </script>

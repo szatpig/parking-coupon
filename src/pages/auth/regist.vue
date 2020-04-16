@@ -1,34 +1,52 @@
 <template>
-    <div class="login-container">
-        <p class="login-logo">
+    <div class="register-container">
+        <p class="register-logo">
             欢迎使用九州ETC
         </p>
-        <div class="login-form">
+        <div class="register-form">
             <van-cell-group>
+                <van-field
+                    label="车牌号"
+                    v-model.trim="user.plateNo"
+                    placeholder="请输入您的车牌号"
+                    @input="handlePlateNoChange"
+                    @blur="handelPageAdjust" />
                 <van-field
                     label="手机号"
                     maxlength="11"
                     type="tel"
-                    v-model.trim="user.phoneNumber"
+                    v-model.trim="user.phoneNo"
                     placeholder="请输入您的手机号"
                     @input="handlePhoneChange"
                     @blur="handelPageAdjust" />
                 <van-field
-                    label="密码"
+                    label="验证码"
                     v-model.trim="user.code"
                     maxlength="6"
                     type="tel"
-                    placeholder="请输入密码"
+                    placeholder="请输入验证码"
                     @input="handleCodeChange"
                     @blur="handelPageAdjust">
+                    <ynt-code slot="button" @handleSend="handleSend" :disabled="disabled" ref="timer" :second="second"></ynt-code>
                 </van-field>
-                <router-link class="register-link" to="/register">忘记密码？</router-link>
+                <van-field
+                        v-model.trim="user.password"
+                        type="password"
+                        placeholder="请输入6-12密码"
+                        maxlength="12"
+                        label="密码"
+                        @input="handleCodeChange"
+                        @blur="handelPageAdjust" />
                 <van-button
-                    :disabled="!(checked && user.phoneNumber && user.code && user.phoneNumber.length == 11)"
-                    class="login-submit"
+                    :disabled="!(checked && user.phoneNo && user.code && user.phoneNo.length == 11)"
+                    class="register-submit"
                     size="large"
                     round
-                    @click="handleLogin">登录</van-button>
+                    type="info"
+                    @click="handleLogin">注册</van-button>
+                <p class="register-tips">
+                    已有账号？<router-link class="register-tips-text" to="/login">点击登录</router-link>
+                </p>
             </van-cell-group>
         </div>
     </div>
@@ -38,13 +56,17 @@
     import { sendSms,userLogin } from '@/api/auth-api'
     import { mapActions } from  'vuex'
     import YntCode from '@/components/YntCode'
+    // import { getCookie,delCookie } from  '@/utils/util'
     export default {
-        name: "login",
+        name: "register",
         data() {
             return {
                 user:{
-                    phoneNumber:'',
+                    plateColor:'',
+                    plateNo:'',
+                    phoneNo:'',
                     code:'',
+                    password:'',
                     openId:''
                 },
                 checked:true,
@@ -61,16 +83,18 @@
                 'setUserInfo'
             ]),
             handlePhoneChange(val){
-                this.user.phoneNumber = val.replace(/[^\d]/g,'');
-
+                this.user.phoneNo = val.replace(/[^\d]/g,'');
+            },
+            handlePlateNoChange(val){
+                // this.user.plateNo = val.replace(/[^\d]/g,'');
             },
             handleCodeChange(val){
                 this.user.code = val.replace(/[^\d]/g,'');
             },
             handleSend(){
                 // _czc.push(['_trackEvent', '验证码', '获取', '验证码获取','1','handleSend']);
-                let reg = /^1[3456789]\d{9}$/;
-                if(!reg.test(this.user.phoneNumber) || this.user.phoneNumber.length != 11){
+                let reg = /^1[3-9]\d{9}$/;
+                if(!reg.test(this.user.plateNo) || this.user.plateNo.length != 11){
                     this.$toast({
                         message: '请输入11位合法手机号',
                     });
@@ -78,7 +102,7 @@
                 }
 
                 let _data = {
-                    phoneNumber: this.user.phoneNumber,
+                    plateNo: this.user.plateNo,
                     type:'wxmp'
                 };
                 sendSms(_data).then(data => {
@@ -91,8 +115,8 @@
             },
             handleLogin(){
                 // _czc.push(['_trackEvent', '用户登录', '登录', '用户名、验证码登录','1','handleSend']);
-                let reg = /^1[3456789]\d{9}$/;
-                if(!reg.test(this.user.phoneNumber) || this.user.phoneNumber.length != 11){
+                let reg = /^1[3-9]\d{9}$/;
+                if(!reg.test(this.user.plateNo) || this.user.plateNo.length != 11){
                     this.$toast({
                         message: '请输入11位合法手机号',
                     });
@@ -150,19 +174,19 @@
 </script>
 
 <style lang="less">
-    .login-container{
-        background: center 100% no-repeat;
+    .register-container{
+        background: url("") center 100% no-repeat;
         background-size: contain;
         flex: 1;
         height: 100%;
-        .login-logo{
+        .register-logo{
             background: #3F8FFE;
             padding : 120px 32px 40px;
             font-size: 50px;
             color: #fff;
             text-align: left;
         }
-        .login-form{
+        .register-form{
             margin: 24px 32px 0;
 
             //vant样式更新
@@ -174,7 +198,7 @@
             }
             .van-cell{
                 padding: 24px 0;
-                input[type=text],input[type=tel]{
+                input[type=text],input[type=tel],input[type=password]{
                     font-size: 28px;
                     height: 48px;
                 }
@@ -191,68 +215,28 @@
                     border-bottom: 2.5px solid #ebedf0;
 
                 }
-                .van-field__label{
-                    font-size: 28px;
-                }
             }
-            .login-submit{
+            .register-submit{
                 line-height: 88px;
                 height: 88px;
-                margin-top: 48px;
+                margin-top: 80px;
                 color: #fff;
                 background-color: @primary-color;
                 &[disabled]{
                     background-color: #B2D2FF;
                 }
             }
-            .login-tips{
+            .register-tips{
                 margin-top: 32px;
                 margin-bottom: 120px;
-                font-size: 26px;
+                font-size: 28px;
                 display: flex;
                 flex-flow: row nowrap;
-                justify-content: flex-start;
-                .van-checkbox{
-                    margin-right: 10px;
-                    flex-shrink: 0;
-                    .van-checkbox__icon {
-                        height: 34px;
-                        line-height: 34px;
-                        .van-icon{
-                            width: 34px;
-                            height: 34px;
-                            border-radius: 999px;
-                        }
-                    }
-                    .van-checkbox__label {
-                        line-height: 34px;
-                    }
-                }
-                .van-checkbox__icon--checked .van-icon{
-                     color: @primary-color;
-                     border-color: @primary-color;
-                     background-color: transparent;
-                }
-                .van-checkbox__label{
-                    a{
-                        color: @primary-color;
-                    }
-                }
-                .login-tips-text{
-                    display: inline-block;
-                    a{
-                        color: @primary-color;
-                    }
+                justify-content: center;
+                .register-tips-text{
+                    color: @primary-color;
                 }
             }
-        }
-        .register-link{
-            display: block;
-            margin-top: 24px;
-            height: 64px;
-            line-height: 64px;
-            font-size: 24px;
-            color: #2196F3;
         }
     }
 </style>

@@ -23,9 +23,15 @@ html,body{
 
 .home-container{
     flex: 1;
+    height: 100%;
     display: flex;
     flex-flow: column nowrap;
     justify-content: flex-start;
+    background: #F2F4F6;
+}
+
+.menu-container{
+
 }
 
 .common-container{
@@ -36,7 +42,6 @@ html,body{
 .van-button--large{
     height: 88px !important;
     line-height: 88px !important;
-    border-radius: 8px !important;
     &.gray{
         background-color: #F8F8F8 ;
         color: #101010;
@@ -46,6 +51,20 @@ html,body{
         color: #fff;
     }
 }
+.popup-container{
+    height: 100%;
+    width: 100%;
+    background-color: #F2F4F6;
+    .popup-btn{
+        margin-top: 32px;
+        padding: 0 32px;
+    }
+    .popup-flex{
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+    }
+}
 
 .dialog-tel{
     display: block;
@@ -53,6 +72,17 @@ html,body{
     color: #3F8FFE;
     font-size: 36px;
     margin-top: 24px;
+}
+
+.flex{
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.van-tabbar{
+    z-index: 9999;
 }
 
 .icon{

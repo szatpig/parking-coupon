@@ -3,62 +3,26 @@
         <div class="head-wrap">
             <img :src="user.headImg" alt="用户头像">
             <div class="user-wrap">
-                <p>{{ user.nickname }} <i>体验版</i></p>
-                <p>{{ user.phoneNumber }}<i @click="handleQuit">切换</i></p>
+                <p>
+                    {{ user.nickname }}
+                    <!--<i></i>-->
+                </p>
+                <p>
+                    {{ user.phoneNumber }}
+                    <!--<i @click="handleQuit"></i>-->
+                </p>
             </div>
-            <span class="icon icon-edit" @click="handleLinkFeedback">帮助与反馈</span>
+            <!--<span class="icon icon-edit" @click="handleLinkFeedback">帮助与反馈</span>-->
         </div>
         <div class="type-wrap">
-            <span @click="handleLink"><img src="./../../images/type-1.png" alt=""><i>接听记录</i></span>
-            <span @click="handleLinkRefuse"><img src="./../../images/type-2.png" alt=""><i>拒绝场景</i></span>
-            <span @click="handleLinkAssistant"><img src="./../../images/type-3.png" alt=""><i>我的助理</i></span>
+            <span @click="handleLink"><img src="" alt=""><i>停车券</i></span>
+            <span @click="handleLinkRefuse"><img src="" alt=""><i>权益金</i></span>
         </div>
         <div class="switch-wrap">
-            <div class="item-cell">
-                <div class="switch-cell">
-                    <p>遇忙转移</p>
-                    <p>占线、挂机时转给AI助理</p>
-                </div>
-                <van-switch
-                    :value="switchArr.transferOnBusy"
-                    @input="handleSwitch('transferOnBusy',0)"
-                    inactive-color="#979AA4"
-                    active-color="#2E72F4"
-                    size="20px" />
-            </div>
-            <div class="item-cell">
-                <div class="switch-cell">
-                    <p>无人接听转移</p>
-                    <p>无人接听时转给AI助理</p>
-                </div>
-                <van-switch
-                    :value="switchArr.transferOnNoReplay"
-                    @input="handleSwitch('transferOnNoReplay',1)"
-                    inactive-color="#979AA4"
-                    active-color="#2E72F4"
-                    size="20px" />
-            </div>
-            <div class="item-cell">
-                <div class="switch-cell">
-                    <p>无法接通转移</p>
-                    <p>关机、无信号时转接给AI助理</p>
-                </div>
-                <van-switch
-                    inactive-color="#979AA4"
-                    active-color="#2E72F4"
-                    :value="switchArr.transferOnUnreachable"
-                    @input="handleSwitch('transferOnUnreachable',2)"
-                    size="20px" />
-            </div>
+            <van-cell title="我的车辆" is-link to="/home/user/car" value="苏E8F2S8" />
+            <van-cell title="联系客服" @click="handleCall" is-link  />
+            <van-cell title="设置" is-link  to="/home/user/setting"/>
         </div>
-        <p class="tips-wrap">
-            未设置成功？您可以试试<router-link to="/home/operation">手动设置</router-link>
-        </p>
-        <p class="ad-wrap">
-            <a href="https://assistant.ynt.ai/app_download_page/index.html?random=201904291905">
-                <img src="../../images/ad.png" alt="">
-            </a>
-        </p>
     </div>
 </template>
 
@@ -73,68 +37,22 @@
                 user:{
                     headImg:headImg,
                     nickname:'小意助理',
-                    phoneNumber:''
+                    phoneNumber:'13511604618'
                 },
-                switchArr: {
-                    transferOnAllCalls: false,
-                    transferOnBusy: false,
-                    transferOnNoReplay: false,
-                    transferOnUnreachable: false
-                },
-                callPhone:'',
-                operator:'0',
-                forwardSetting:{
-                    transferOnAllCalls:[
-                        ['#21#','*21*tel#'],
-                        ['*720','*72tel'],
-                        ['##21#','**21*tel#']
-                    ],
-                    transferOnBusy:[
-                        ['#67#','*67*tel#'],
-                        ['*900','*90tel'],
-                        ['##67#','**67*tel#']
-                    ],
-                    transferOnNoReplay:[
-                        ['#61#','*61*tel#'],
-                        ['*920','*92tel'],
-                        ['##61#','**61*tel#']
-                    ],
-                    transferOnUnreachable:[
-                        ['#62#','*62*tel#'],
-                        ['*680','*68tel'],
-                        ['##62#','**62*tel#']
-                    ]
-                },
-                forwardType:'transferOnAllCalls',
-                forwardTxt:{
-                    transferOnAllCalls:'',
-                    transferOnBusy:'遇忙转移',
-                    transferOnNoReplay:'无人接听转移',
-                    transferOnUnreachable:'无法接通转移'
-                }
+                serviceNumber:888-88888888
             }
         },
         components: {},
         methods: {
-            handleSwitch(type,callFordType){
-                this.forwardType = type;
-                let _msg = this.switchArr[type] ?
-                        `请点击下方号码，拨打后即可关闭<a class="dialog-tel" href="tel:${URLencode(this.callNumber)}">${this.callNumber}</a>`
-                        :`请点击下方号码，拨打后即可开通<a class="dialog-tel" href="tel:${URLencode(this.callNumber)}">${this.callNumber}</a>`
+            handleCall(){
                 this.$dialog.confirm({
-                    className:'switchDialog',
-                    title:`${this.switchArr[type] ? '关闭':'开通'}${this.forwardTxt[type]}`,
-                    message: _msg,
-                    confirmButtonText:'我已拨打',
-                    cancelButtonText:`暂不${this.switchArr[type] ? '关闭':'开通'}`
+                    className:'call-dialog',
+                    title:``,
+                    message: `是否拨打客服电话${ this.serviceNumber }`,
+                    confirmButtonText:'拨打',
+                    cancelButtonText:`取消`
                 }).then(()=>{
-                    changeCallForwardSetting({
-                        callFordType,
-                        on:!this.switchArr[type]
-                    }).then(()=>{
-                        this.switchArr[type] = !this.switchArr[type];
-                        this.forwardType = ''
-                    });
+                    window.location.href = `tel:${ URLencode(this.serviceNumber) }` ;
                 }).catch(err=>{
 
                 });
@@ -181,18 +99,6 @@
             handleLink(){
                 this.$router.push('/home/call')
             },
-            handleLinkTo(){
-                this.$router.push('/home/scene/config')
-            },
-            handleLinkFeedback(){
-                this.$router.push('/home/feedback/qa')
-            },
-            handleLinkRefuse(){
-                this.$router.push('/home/refuse')
-            },
-            handleLinkAssistant(){
-                this.$router.push('/home/scene/audio/'+ (this.user.usedScrType == 1 ? 0 : this.user.usedScrid) +'/'+ this.user.usedSctid)
-            },
             init(){
                 userInfo().then(data => {
                     this.user.headImg = data.data.headImg;
@@ -213,16 +119,10 @@
             }
         },
         computed: {
-            show(){
-                return  this.user.unreadRecordCount
-            },
-            callNumber(){
-                //运营商：0，移动；1，电信；2，联通；3，其他
-                return this.forwardSetting[this.forwardType][this.operator][Number(!this.switchArr[this.forwardType])].replace(/tel/g,this.callPhone)
-            }
+
         },
         created() {
-            this.init();
+            // this.init();
         }
     }
 </script>
@@ -231,15 +131,16 @@
     .user-container{
         position: relative;
         padding: 0 32px;
+        background: #fff;
         .head-wrap{
             margin: 0 -32px;
             box-sizing: content-box;
             height: 108px;
-            padding: 60px 32px 92px;
+            padding: 32px 32px 100px;
             display: flex;
             flex-flow: row nowrap;
             justify-content: flex-start;
-            background: url("../../images/user-bg.png") center top no-repeat;
+            background: url("./../../images/user-bg.png") center top no-repeat;
             z-index: 1;
             img{
                 height: 108px;
@@ -305,12 +206,12 @@
         .type-wrap{
             display: flex;
             flex-flow: row nowrap;
-            justify-content: space-between;
-            padding: 28px 56px;
+            justify-content: space-around;
+            padding: 48px 56px;
             width: 100%;
             box-shadow:0px 4px 5px 0px rgba(0, 0, 0, 0.08);
             position: relative;
-            top:-32px;
+            top:-64px;
             border-radius: 8px;
             z-index: 5;
             background: #fff;
@@ -328,17 +229,10 @@
             }
         }
         .switch-wrap{
-            box-shadow:0px 4px 5px 0px rgba(0, 0, 0, 0.08);
-            padding: 32px 24px;
-            .item-cell{
-                display: flex;
-                flex-flow: row nowrap;
-                justify-content: space-between;
-                align-items: center;
-                padding-bottom: 56px;
-                &:last-child{
-                    padding-bottom: 0;
-                }
+            margin: -64px -16px 0;
+            padding: 32px 24px 0;
+            .van-cell{
+                padding: 20px 0;
             }
             .switch-cell{
                 p{
@@ -360,22 +254,10 @@
 
             }
         }
-        .tips-wrap{
-            padding: 32px 0;
-            color: #979AA4;
-            font-size: 26px;
-            a{
-                color: #3F8FFE;
-            }
-        }
-        .ad-wrap{
-            margin-bottom: 90px;
-            margin-top: 50px;
-            box-shadow:0px 4px 5px 0px rgba(0, 0, 0, 0.08);
-            img{
-                width: 100%;
-                height: auto;
-            }
+    }
+    .call-dialog{
+        .van-dialog__message{
+            padding: 80px 24px;
         }
     }
 </style>
