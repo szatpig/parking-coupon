@@ -1,12 +1,12 @@
 <template>
     <van-tabbar route class="menu-container">
-        <van-tabbar-item replace to="/home/parking" icon="home-o">
+        <van-tabbar-item replace to="/home/parking" icon="logistics">
             停车
         </van-tabbar-item>
-        <van-tabbar-item replace to="/home/coupon" icon="search">
+        <van-tabbar-item replace to="/home/coupon" icon="debit-pay">
             领券
         </van-tabbar-item>
-        <van-tabbar-item replace to="/home/user" icon="search">
+        <van-tabbar-item replace to="/home/user" icon="contact">
             我的
         </van-tabbar-item>
     </van-tabbar>
@@ -26,4 +26,8 @@
     }
 </script>
 
-<style lang="scss"></style>
+<style lang="less">
+    .van-tabbar{
+        height: 100px;
+    }
+</style>

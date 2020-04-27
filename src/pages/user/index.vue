@@ -15,8 +15,8 @@
             <!--<span class="icon icon-edit" @click="handleLinkFeedback">帮助与反馈</span>-->
         </div>
         <div class="type-wrap">
-            <span @click="handleLink"><img src="" alt=""><i>停车券</i></span>
-            <span @click="handleLinkRefuse"><img src="" alt=""><i>权益金</i></span>
+            <span class="flex" @click="$router.push('/home/user/coupons')"><SvgComponent icon="coupon" /><i>停车券</i></span>
+            <span class="flex" @click="$router.push('/home/user/equity')"><SvgComponent icon="equity" /><i>权益金</i></span>
         </div>
         <div class="switch-wrap">
             <van-cell title="我的车辆" is-link to="/home/user/car" value="苏E8F2S8" />
@@ -28,6 +28,7 @@
 
 <script>
     import headImg from '@/images/head-img.png'
+    import SvgComponent from '@/components/svg'
     import { userInfo,getForwardTelInfo,getCallForwardSetting,changeCallForwardSetting } from '@/api/user-api'
     import { URLencode } from  '@/utils/util'
     export default {
@@ -42,7 +43,9 @@
                 serviceNumber:888-88888888
             }
         },
-        components: {},
+        components: {
+            SvgComponent
+        },
         methods: {
             handleCall(){
                 this.$dialog.confirm({
@@ -97,7 +100,7 @@
                 });
             },
             handleLink(){
-                this.$router.push('/home/call')
+
             },
             init(){
                 userInfo().then(data => {
@@ -216,11 +219,12 @@
             z-index: 5;
             background: #fff;
             span{
-                width: 124px;
+                width: 164px;
                 text-align: center;
-                img{
-                    width: 112px;
-                    height: 112px;
+                .svg-icon{
+                    width: 44px;
+                    height: 44px;
+                    margin-right: 24px;
                 }
                 i{
                     font-size: 30px;

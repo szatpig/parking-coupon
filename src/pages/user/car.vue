@@ -7,7 +7,7 @@
                     <span class="custom-title">苏E8F2S8</span>
                 </template>
             </van-cell>
-            <van-cell is-link >
+            <van-cell is-link @click="handleShow">
                 <template #title>
                     <img src="../../images/head-img.png" alt="">
                     <span class="custom-title">苏E8F2S8</span>
@@ -19,7 +19,7 @@
                     class="car-link"
                     size="large"
                     round
-                    @click="handleAdd">+ 新增车辆</van-button>
+                    @click="handleShow">+ 新增车辆</van-button>
         </div>
         <van-popup class="popup-container" v-model="popup.show" position="right" >
             <van-cell-group>
@@ -39,7 +39,7 @@
                         size="large"
                         round
                         type="info"
-                        @click="handleLogin">保存</van-button>
+                        @click="handleSubmit">保存</van-button>
             </div>
         </van-popup>
     </div>
@@ -59,12 +59,27 @@
             }
         },
         components: {},
+        watch: {
+            '$route' (to, from) {
+                console.log(to)
+                // 对路由变化作出响应...
+                if(to.query.type== 'add'){
+                    this.popup.show = true;
+                }else{
+                    this.popup.show = false;
+                }
+            }
+        },
         methods: {
             handleShow(){
-                this.popup.show = true;
+                this.$router.push({
+                    query:{
+                        type:'add'
+                    }
+                });
             },
-            handleAdd(){
-
+            handleSubmit(){
+                this.$router.go(-1);
             },
             handleDelete(){
                 this.$dialog.confirm({
@@ -93,6 +108,12 @@
         },
         computed: {},
         created() {
+            let { type } = this.$route.query;
+            if(type== 'add' ){
+                this.popup.show = true;
+            }else{
+                this.popup.show = false;
+            }
         }
     }
 </script>

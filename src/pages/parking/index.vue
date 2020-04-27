@@ -1,31 +1,129 @@
 <template>
     <div class="parking-container">
-        <div class="parking-car-list">
-            <div class="car-cell flex">
-                <div class="flex">
-                    <img src="../../images/head-img.png" alt="">
-                    <div class="car-info">
-                        <p>苏E8F2S8</p>
-                        <p>4张新券待领</p>
+        <div class="parking-wrapper" id="parking-wrapper" />
+        <div class="parking-location">
+            <van-search
+                    v-model="value"
+                    shape="round"
+                    background="transparent"
+                    placeholder="搜索停车场"
+                    readonly
+                    @click="$router.push('/home/parking/search')"
+            />
+            <div class="location-ex" v-show="!!!active">
+                <div class="location-item flex">
+                    <div class="location-txt">
+                        <p class="flex"><van-tag>最近</van-tag>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
+                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                    </div>
+                    <div class="location-path">
+                        <SvgComponent icon="daohang" />
+                        导航
                     </div>
                 </div>
-                <van-button round size="small" type="warning">立即领取</van-button>
             </div>
-            <div class="car-cell flex">
-                <div class="flex">
-                    <img src="../../images/head-img.png" alt="">
-                    <div class="car-info">
-                        <p>苏E8F2S8</p>
-                        <p>已有10张优惠券</p>
+            <div class="location-nav" :class="{ active:active }" @click="handleMore">
+                <SvgComponent icon="pull" class="icon-pull" />
+                <p>附近有10个合作停车场</p>
+            </div>
+            <div class="location-list" :class="{ active:active }">
+                <div class="location-item flex">
+                    <div class="location-txt">
+                        <p><van-tag>最近</van-tag>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
+                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                    </div>
+                    <div class="location-path">
+                        <SvgComponent icon="daohang" />
+                        导航
                     </div>
                 </div>
-                <van-button round size="small">查看全部<van-icon name="arrow" /></van-button>
-            </div>
-            <div class="car-cell flex">
-                <div class="flex">
-                    <img src="../../images/head-img.png" alt="">
-                    <div class="car-info">
-                        <p>+新增车辆</p>
+                <div class="location-item flex">
+                    <div class="location-txt">
+                        <p><van-tag v-if="index == 0">最近</van-tag>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
+                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                    </div>
+                    <div class="location-path">
+                        <SvgComponent icon="daohang" />
+                        导航
+                    </div>
+                </div>
+                <div class="location-item flex">
+                    <div class="location-txt">
+                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
+                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                    </div>
+                    <div class="location-path">
+                        导航
+                    </div>
+                </div>
+                <div class="location-item flex">
+                    <div class="location-txt">
+                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
+                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                    </div>
+                    <div class="location-path">
+                        <SvgComponent icon="daohang" />
+                        导航
+                    </div>
+                </div>
+                <div class="location-item flex">
+                    <div class="location-txt">
+                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
+                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                    </div>
+                    <div class="location-path">
+                        <SvgComponent icon="daohang" />
+                        导航
+                    </div>
+                </div>
+                <div class="location-item flex">
+                    <div class="location-txt">
+                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
+                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                    </div>
+                    <div class="location-path">
+                        <SvgComponent icon="daohang" />
+                        导航
+                    </div>
+                </div>
+                <div class="location-item flex">
+                    <div class="location-txt">
+                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
+                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                    </div>
+                    <div class="location-path">
+                        <SvgComponent icon="daohang" />
+                        导航
+                    </div>
+                </div>
+                <div class="location-item flex">
+                    <div class="location-txt">
+                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
+                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                    </div>
+                    <div class="location-path">
+                        <SvgComponent icon="daohang" />
+                        导航
+                    </div>
+                </div>
+                <div class="location-item flex">
+                    <div class="location-txt">
+                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
+                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                    </div>
+                    <div class="location-path">
+                        <SvgComponent icon="daohang" />
+                        导航
+                    </div>
+                </div>
+                <div class="location-item flex">
+                    <div class="location-txt">
+                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
+                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                    </div>
+                    <div class="location-path">
+                        <SvgComponent icon="daohang" />
+                        导航
                     </div>
                 </div>
             </div>
@@ -34,59 +132,151 @@
 </template>
 
 <script>
+    import WxMixin from '@/mixins/wxMixin'
+    import SvgComponent from '@/components/svg'
     export default {
-        name: "index",
+        name: "parking",
         data() {
-            return {}
+            return {
+                active:false,
+                mapInstance:null
+            }
         },
-        components: {},
-        methods: {},
+        components: {
+            SvgComponent
+        },
+        mixins:[WxMixin],
+        methods: {
+            init() {
+                this.mapInstance = new qq.maps.Map(document.getElementById("parking-wrapper"), {
+                    // 地图的中心地理坐标。
+                    center: new qq.maps.LatLng(39.916527, 116.397128),
+                    zoom: 13,
+                    scaleControl: false,
+                    zoomControl: false,
+                    panControl: false,
+                    mapTypeControl:false
+                });
+            },
+            handleMore(){
+                this.active = !this.active
+            }
+        },
         computed: {},
+        mounted(){
+            this.init();
+        },
         created() {
+
         }
     }
 </script>
 
 <style lang="less">
     .parking-container{
-        background: radial-gradient( circle at 0 360px,#2E72F4 240px , #2E72F4 0 ) top center / 100% 240px no-repeat;
-        padding-top: 176px;
-        .parking-car-list{
-            padding: 0 32px;
+        flex: 1;
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: flex-start;
+        height: 100%;
+        .parking-wrapper{
+            flex: 1;
+            height: calc(100% - 100px);
         }
-        .car-cell{
-            padding: 48px 32px;
-            border-radius: 8px;
-            box-shadow: 0 0 5px #eee;
-            background: #fff;
-            margin-bottom: 16px;
-            justify-content: space-between;
-            img{
-                height: 96px;
-                width: 96px;
+        .parking-location{
+            position: fixed;
+            left:0;
+            right: 0;
+            bottom: 100px;
+            .van-search{
+                padding: 10px 16px 24px;
+                .van-search__content{
+                    background-color: #fff;
+                }
+                .van-cell{
+                    height: 80px;
+                    line-height: 60px;
+                }
             }
-            .car-info{
-                margin-left: 32px;
-                p{
-                    font-size: 24px;
-                    color: #909499;
-                    &:first-child{
-                        font-size: 32px;
-                        color: #57626D;
+            .location-ex{
+                padding:  0 16px 24px ;
+                .location-item{
+                    border-radius: 12px;
+                }
+            }
+            .location-nav{
+                height: 100px;
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: center;
+                align-items: center;
+                background: #fff;
+                color: #909499;
+                border-bottom: 1px solid #DDDEE1;
+                .icon-pull{
+                    height: 10px ;
+                    width: 80px;
+                    margin-bottom: 16px;
+                }
+                &.active{
+                    .icon-pull{
+                        height: 10px ;
+                        width: 80px;
                         margin-bottom: 16px;
+                        transform: rotate(180deg);
                     }
                 }
             }
-            .van-button{
-                padding: 0 20px;
-                &.van-button--default{
-                    padding:  0 12px 0 20px;
-                    .van-button__text{
-                        display: flex;
-                        align-items: center;
+            .location-item{
+                &.flex{
+                    justify-content: space-between;
+                }
+                background: #fff;
+                padding: 36px 24px;
+                position: relative;
+                &:not(:last-child):after{
+                    content: '';
+                    position: absolute;
+                    bottom:0;
+                    left:24px;
+                    right: 24px;
+                    display: block;
+                    height: 2px;
+                    background-color: #EEF1F5;
+                }
+                .location-txt{
+                    font-size: 32px;
+                    color: #293547;
+                    .van-tag{
+                        margin-right: 12px;
                     }
+                    p:last-child{
+                        margin-top: 20px;
+                        font-size: 24px;
+                        color: #909499;
+
+                    }
+                }
+                .location-path{
+                    font-size: 22px;
+                    color: #909499;
+                    display: flex;
+                    flex-flow: column nowrap;
+                    justify-content: space-around;
+                    .svg-icon{
+                        margin-bottom: 4px;
+                    }
+                }
+            }
+            .location-list{
+                height: 0;
+                transition: height 0.3s;
+                &.active{
+                    height:780px;
+                    overflow-y: auto;
                 }
             }
         }
+
     }
 </style>

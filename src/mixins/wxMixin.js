@@ -22,6 +22,8 @@ export default {
                 nonceStr: nonceStr, // 必填，生成签名的随机串
                 signature: signature, // 必填，签名
                 jsApiList: [              //所有要调用的 API 都要加到这个列表中
+                    //地理位置
+                    'getLocation',
                     //分享到朋友圈
                     'onMenuShareTimeline',
                     //发送给朋友
@@ -66,10 +68,10 @@ export default {
         console.log(sessionStorage.getItem('wx'));
         if(Number(sessionStorage.getItem('wx'))){
            if(isAndroid){
-               this.wxShare();
+               // this.wxShare();
            }
         }else{
-            this.wxShare();
+            // this.wxShare();
         }
 
     }

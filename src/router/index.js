@@ -10,6 +10,7 @@ const Home = () => import(/* webpackChunkName: "home" */ '@/pages/home');
 const Coupon = () => import(/* webpackChunkName: "user'" */ '@/pages/coupon');
 
 const Parking = () => import(/* webpackChunkName: "user'" */ '@/pages/parking');
+const Search = () => import(/* webpackChunkName: "user'" */ '@/pages/parking/search');
 
 const User = () => import(/* webpackChunkName: "user'" */ '@/pages/user');
 const Car = () => import(/* webpackChunkName: "car'" */ '@/pages/user/car');
@@ -32,11 +33,19 @@ const routes =[
         },
         children:[
             {
+                path:'parking/search',
+                component:Search,
+                name:'search',
+                meta:{
+                    title:'停车场搜索'
+                }
+            },
+            {
                 path:'parking',
                 component:Parking,
                 name:'parking',
                 meta:{
-                    title:'领券中心'
+                    title:'停车场搜索'
                 }
             },
             {
