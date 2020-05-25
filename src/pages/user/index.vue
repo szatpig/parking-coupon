@@ -8,7 +8,7 @@
                     <!--<i></i>-->
                 </p>
                 <p>
-                    {{ user.phoneNumber }}
+                    {{ mobile.replace(/(\d{3})(\d{4})(\d{4})/,'$1xxxx$2') }}
                     <!--<i @click="handleQuit"></i>-->
                 </p>
             </div>
@@ -19,7 +19,7 @@
             <span class="flex" @click="$router.push('/home/user/equity')"><SvgComponent icon="equity" /><i>权益金</i></span>
         </div>
         <div class="switch-wrap">
-            <van-cell title="我的车辆" is-link to="/home/user/car" value="苏E8F2S8" />
+            <van-cell title="我的车辆" is-link @click="handleLink" :value="user.car" />
             <van-cell title="联系客服" @click="handleCall" is-link  />
             <van-cell title="设置" is-link  to="/home/user/setting"/>
         </div>
@@ -29,8 +29,9 @@
 <script>
     import headImg from '@/images/head-img.png'
     import SvgComponent from '@/components/svg'
-    import { userInfo,getForwardTelInfo,getCallForwardSetting,changeCallForwardSetting } from '@/api/user-api'
+    import { customerCarList } from '@/api/user-api'
     import { URLencode } from  '@/utils/util'
+    import { mapState } from  'vuex'
     export default {
         name: "account",
         data() {
@@ -38,8 +39,10 @@
                 user:{
                     headImg:headImg,
                     nickname:'小意助理',
-                    phoneNumber:'13511604618'
+                    phoneNumber:'13511604618',
+                    car:''
                 },
+                list:[],
                 serviceNumber:888-88888888
             }
         },
@@ -100,32 +103,28 @@
                 });
             },
             handleLink(){
-
+                this.$router.push({
+                    name:'car',
+                    params:{
+                        list:this.list
+                    }
+                })
             },
             init(){
-                userInfo().then(data => {
-                    this.user.headImg = data.data.headImg;
-                    this.user.nickname = data.data.nickname;
-                    this.user.phoneNumber = data.data.phoneNumber;
-                    this.user.usedScrid = data.data.usedScrid;
-                    this.user.usedSctid = data.data.usedSctid;
-                    this.user.usedScrType = data.data.usedScrType || 0
+                customerCarList().then(data => {
+                    this.list = data.data;
+                    this.user.car = this.list.length ? (this.list.length > 1 ? this.list.length + ' 辆' : this.list[0].plateNo) : ''
                 });
-                getForwardTelInfo().then(data => {
-                    this.operator = data.data.operator;
-                    this.callPhone = data.data.forwardIn;
-                    sessionStorage.setItem('forwardIn',JSON.stringify(data.data));
-                });
-                getCallForwardSetting().then(data => {
-                    this.switchArr =  data.data;
-                })
             }
         },
         computed: {
-
+            ...mapState({
+                mobile: state => state.user.userInfo.name
+                // menuList: state =>state.title.menuList
+            }),
         },
         created() {
-            // this.init();
+            this.init();
         }
     }
 </script>
@@ -143,7 +142,7 @@
             display: flex;
             flex-flow: row nowrap;
             justify-content: flex-start;
-            background: url("./../../images/user-bg.png") center top no-repeat;
+            background: linear-gradient(90deg, #2196F3 0%, #2270E4 100%);
             z-index: 1;
             img{
                 height: 108px;

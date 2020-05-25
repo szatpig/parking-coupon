@@ -6,3 +6,8 @@ export const getWechatSign = (params)=> fetch(api.api + '/wx/jsSdk/jsapiSignatur
     type:'get',
     params
 });
+
+export const listPlateColorType = (params)=> fetch(api.api + '/customerCar/listPlateColorType',{
+    type:'get',
+    params
+});

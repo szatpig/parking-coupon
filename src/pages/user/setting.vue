@@ -4,22 +4,22 @@
             <van-cell title="修改密码" is-link @click="handleShow" />
             <van-cell title="优先使用权益金">
                 <template>
-                    <van-switch v-model="priority" size="20px" />
+                    <van-switch :active-value="0" :inactive-value="1" v-model="priority" size="20px" />
                 </template>
             </van-cell>
             <van-cell title="优先使用日期较近的权益金">
                 <template>
-                    <van-switch v-model="equityPriority" size="20px" />
+                    <van-switch :active-value="0" :inactive-value="1" v-model="equityPriority" size="20px" />
                 </template>
             </van-cell>
         </div>
         <van-popup class="popup-container popup-password" v-model="popup.show" position="right" >
-            <van-form @submit="handleSubmit">
+            <van-form @submit="handleSubmit" :show-error-message="false">
                 <van-field
                     v-if="$route.query.type == 'password'"
                     type="password"
                     label="原密码"
-                    name="password"
+                    name="oldPassword"
                     maxlength="12"
                     v-model.trim="popup.data.password"
                     placeholder="请输入当前使用的密码"
@@ -44,7 +44,7 @@
                     label="确认密码"
                     maxlength="12"
                     type="password"
-                    name="confirmPassword"
+                    name="affirmPassword"
                     v-model.trim="popup.data.confirmPassword"
                     placeholder="请再次输入新的密码"
                     :rules="[
@@ -62,9 +62,9 @@
             </van-form>
         </van-popup>
         <van-popup class="popup-container popup-code" v-model="popupCode.show" position="right" >
-            <van-form @submit="handleReset">
-                <p class="code-tips">已发送验证码到您的手机</p>
-                <p class="code-phone">188xxxx9876</p>
+            <van-form @submit="handleReset" :show-error-message="false">
+                <p class="code-tips">发送验证码到您的手机</p>
+                <p class="code-phone">{{ mobile.replace(/(\d{3})(\d{4})(\d{4})/,'$1xxxx$2') }}</p>
                 <van-field
                         v-model.trim="popupCode.data.code"
                         type="tel"
@@ -88,8 +88,10 @@
 </template>
 
 <script>
-    import { sendSms,userLogin } from '@/api/auth-api'
+    import { sendSms } from '@/api/auth-api'
+    import { getByCustomerInfo, getByCustomerInfoUpdate, listIndustryEquity, resetPassword, forgetPassword, verificationCode } from '@/api/user-api'
     import YntCode from '@/components/YntCode'
+    import { mapState } from  'vuex'
     export default {
         name: "setting",
         data() {
@@ -138,16 +140,22 @@
             },
             handleSubmit(val){
                 if(this.$route.query.type == 'reset'){
-                    this.$router.replace('/home/user/setting');
+                    forgetPassword(val).then(() => {
+                        this.$toast('密码修改成功')
+                        this.$router.replace('/home/user/setting');
+                    })
                 }else{
-
+                    resetPassword(val).then(() => {
+                        this.$toast('密码修改成功')
+                        this.$router.replace('/home/user/setting');
+                    })
                 }
                 console.log(val)
             },
             handleSend(){
                 let _data = {
-                    plateNo: this.user.plateNo,
-                    type:'wxmp'
+                    plateNo: this.mobile,
+                    type:'wx_password'
                 };
                 sendSms(_data).then(data => {
                     this.disabled = true;
@@ -163,6 +171,13 @@
                         type:'reset'
                     }
                 });
+            },
+
+            getByCustomer(){
+                getByCustomerInfo().then(data => {
+                    this.priority = data.data.priority;
+                    this.equityPriority = data.data.equityPriority
+                })
             },
 
             //ios12 页面回弹底部空白 bug
@@ -191,7 +206,11 @@
                 }
             }
         },
-        computed: {},
+        computed: {
+            ...mapState({
+                mobile: state => state.user.userInfo.name
+            }),
+        },
         created() {
             let { type } = this.$route.query;
             if(type== 'password' || type=='reset'){
@@ -203,6 +222,7 @@
                 this.popup.show = false;
                 this.popupCode.show = false;
             }
+            this.getByCustomer();
         }
     }
 </script>

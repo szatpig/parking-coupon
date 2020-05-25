@@ -66,23 +66,16 @@ module.exports = {
 
     devServer: {
         host: '0.0.0.0',
-        port: 4000,
+        port: 5000,
         https: false,
         hotOnly: false,
         // See https://github.com/vuejs/vue-cli/blob/dev/docs/cli-service.md#configuring-proxy
         proxy: {
-            // '/api': {
-            //     target: 'http://test-assistant.ynt.ai',
-            //     changeOrigin: true,
-            //     pathRewrite: {
-            //         '^/api': `/ydqa/YNT-AEGIS-CORE/core`            //接口请求代理
-            //     } 
-            // },
             '/api': {
-                target: 'http://192.168.0.11:8911',
+                target: 'http://192.168.88.23:8083',
                 changeOrigin: true,
                 pathRewrite: {
-                    '^/api': `/dc`            //本地run dev接口代理
+                    '^/api': ``            //本地run dev接口代理
                 }
             },
             '/common': {

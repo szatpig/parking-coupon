@@ -9,13 +9,13 @@
                     label="手机号"
                     maxlength="11"
                     type="tel"
-                    v-model.trim="user.phoneNumber"
+                    v-model.trim="user.phone"
                     placeholder="请输入您的手机号"
                     @input="handlePhoneChange"
                     @blur="handelPageAdjust" />
                 <van-field
                     label="密码"
-                    v-model.trim="user.code"
+                    v-model.trim="user.password"
                     maxlength="6"
                     type="tel"
                     placeholder="请输入密码"
@@ -24,7 +24,7 @@
                 </van-field>
                 <router-link class="register-link" to="/register">忘记密码？</router-link>
                 <van-button
-                    :disabled="!(checked && user.phoneNumber && user.code && user.phoneNumber.length == 11)"
+                    :disabled="!(checked && user.phone && user.password && user.phone.length == 11)"
                     class="login-submit"
                     size="large"
                     round
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-    import { sendSms,userLogin } from '@/api/auth-api'
+    import { userLogin,sendSms } from '@/api/auth-api'
     import { mapActions } from  'vuex'
     import YntCode from '@/components/YntCode'
     export default {
@@ -43,8 +43,8 @@
         data() {
             return {
                 user:{
-                    phoneNumber:'',
-                    code:'',
+                    phone:'',
+                    password:'',
                     openId:''
                 },
                 checked:true,
@@ -61,16 +61,15 @@
                 'setUserInfo'
             ]),
             handlePhoneChange(val){
-                this.user.phoneNumber = val.replace(/[^\d]/g,'');
+                this.user.phone = val.replace(/[^\d]/g,'');
 
             },
             handleCodeChange(val){
-                this.user.code = val.replace(/[^\d]/g,'');
+                this.user.password = val.replace(/[\s]/g,'');
             },
             handleSend(){
-                // _czc.push(['_trackEvent', '验证码', '获取', '验证码获取','1','handleSend']);
                 let reg = /^1[3456789]\d{9}$/;
-                if(!reg.test(this.user.phoneNumber) || this.user.phoneNumber.length != 11){
+                if(!reg.test(this.user.phone) || this.user.phone.length != 11){
                     this.$toast({
                         message: '请输入11位合法手机号',
                     });
@@ -78,7 +77,7 @@
                 }
 
                 let _data = {
-                    phoneNumber: this.user.phoneNumber,
+                    phone: this.user.phone,
                     type:'wxmp'
                 };
                 sendSms(_data).then(data => {
@@ -90,38 +89,27 @@
                 })
             },
             handleLogin(){
-                // _czc.push(['_trackEvent', '用户登录', '登录', '用户名、验证码登录','1','handleSend']);
                 let reg = /^1[3456789]\d{9}$/;
-                if(!reg.test(this.user.phoneNumber) || this.user.phoneNumber.length != 11){
+                if(!reg.test(this.user.phone) || this.user.phone.length != 11){
                     this.$toast({
                         message: '请输入11位合法手机号',
                     });
                     return false;
                 }
-                if(!this.user.code){
+                if(!this.user.password){
                     this.$toast({
                         message: '验证码不能为空 >_<',
                     });
                     return false;
                 }
-                // this.user.openId = sessionStorage.getItem('openId')
                 this.user.openId = this.$route.query.openId;
                 this.$route.query.openId &&(sessionStorage.setItem('openId',this.$route.query.openId));
                 userLogin(this.user).then((data) => {
-                    // await this.setUserInfo(data.data);
-                    // await this.setUserToken(getCookie('token'));
-                    // this.$router.replace({
-                    //     path:'/home/tel/setting'
-                    // });
-                    if(data.data.forwardSetting == '1'){
-                        this.$router.replace({
-                            path:'/home/tel/setting'
-                        });
-                    }else{
-                        this.$router.replace({
-                            path:'/home/account'
-                        });
-                    }
+                    this.setUserInfo(data.data);
+                    this.setUserToken(data.data.token);
+                    this.$router.replace({
+                        path:'/home/user'
+                    });
                 })
             },
 
@@ -151,12 +139,11 @@
 
 <style lang="less">
     .login-container{
-        background: center 100% no-repeat;
-        background-size: contain;
         flex: 1;
         height: 100%;
         .login-logo{
-            background: #3F8FFE;
+            background: url("./../../images/auth-bg.png") center 100% no-repeat;
+            background-size: cover;
             padding : 120px 32px 40px;
             font-size: 50px;
             color: #fff;
