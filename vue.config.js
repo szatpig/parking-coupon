@@ -10,13 +10,14 @@ const externals = {
     'vue-router':'VueRouter',
     'vuex':'Vuex',
     'axios':'axios',
-    'vant':'vant'
+    'vant':'vant',
+    'dragula':'dragula'
 }
 
 
 module.exports = {
     publicPath: process.env.NODE_ENV === 'production'
-            ? `/` //这里是打包正式配置 eg: outbound.ynt.ai:7001/crm/#/login
+            ? process.env.VUE_APP_ROOT //这里是打包正式配置 eg: outbound.ynt.ai:7001/crm/#/login
             : '/',
     outputDir:'docs',
     productionSourceMap: false,
@@ -55,7 +56,7 @@ module.exports = {
         }
     },
     pluginOptions: {
-      vconsole: { enable: process.env.VUE_APP_PREFIX != '' /* others... */ },
+      vconsole: { enable: false /* others... */ },
       'style-resources-loader': {
         preProcessor: 'less',
         patterns: [

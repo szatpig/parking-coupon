@@ -1,29 +1,24 @@
 <template>
     <div class="coupon-container">
         <div class="coupon-car-list">
-            <div class="car-cell flex active">
-                <div class="flex">
-                    <img class="" src="../../images/car-active.png" alt="">
-                    <div class="car-info">
-                        <p>苏E8F2S8</p>
-                        <p>4张新券待领</p>
+            <template v-for="item in carList">
+                <div class="car-cell flex" :class="{ active: item.unReceivedCount }">
+                    <div class="flex">
+                        <img v-if="item.unReceivedCount" src="../../images/car-active.png" alt="">
+                        <img  v-else src="../../images/car-head.png" alt="">
+                        <div class="car-info">
+                            <p>{{ item.plateNo }}</p>
+                            <p>{{ item.unReceivedCount ? `${ item.unReceivedCount } 张新券待领`:`已有 ${ item.unUsedCount } 张优惠券` }}</p>
+                        </div>
                     </div>
+                    <van-button v-if="item.unReceivedCount" round size="small" type="warning" @click="handleGet(item)">立即领取</van-button>
+                    <van-button v-else round size="small" @click="$router.push('/home/user/coupons')">查看全部<van-icon name="arrow" /></van-button>
                 </div>
-                <van-button round size="small" type="warning" @click="handleGet">立即领取</van-button>
-            </div>
+            </template>
+
             <div class="car-cell flex">
                 <div class="flex">
-                    <img src="../../images/head-img.png" alt="">
-                    <div class="car-info">
-                        <p>苏E8F2S8</p>
-                        <p>已有10张优惠券</p>
-                    </div>
-                </div>
-                <van-button round size="small" @click="$router.push('/home/user/coupons')">查看全部<van-icon name="arrow" /></van-button>
-            </div>
-            <div class="car-cell flex">
-                <div class="flex">
-                    <img src="../../images/head-img.png" alt="">
+                    <img src="../../images/car-head.png" alt="">
                     <div class="car-info">
                         <p @click="$router.push('/home/user/car?type=add')">+新增车辆</p>
                     </div>
@@ -36,21 +31,14 @@
                     <van-icon name="close" size="28" @click="overlay.show = false"/>
                 </div>
                 <div class="bottom-wrap">
-                    <p>您的车辆苏E888U8获得3张优惠券！</p>
+                    <p>您的车辆苏E888U8获得 {{ couponList.length }} 张优惠券！</p>
                     <div class="list-wrap">
-                        <div class="flex">
+                        <div class="flex" v-for="item in couponList" :key="item.id">
                             <div class="list-txt">
                                 <p>停车优惠券</p>
-                                <p>2020–02–20 23:59到期</p>
+                                <p>{{ item.expirationTime }} 到期</p>
                             </div>
-                            <span>￥<i>4000</i></span>
-                        </div>
-                        <div class="flex">
-                            <div class="list-txt">
-                                <p>停车优惠券</p>
-                                <p>2020–02–20 23:59到期</p>
-                            </div>
-                            <span>￥<i>4000</i></span>
+                            <span>￥<i>{{ item.couponAmount }} </i></span>
                         </div>
                     </div>
                 </div>
@@ -61,23 +49,37 @@
 </template>
 
 <script>
+    import { customerCarCouponList, receiveCoupons } from '@/api/user-api'
     export default {
         name: "coupon",
         data() {
             return {
                 overlay:{
                     show:false
-                }
+                },
+                carList:[],
+                couponList:[]
             }
         },
         components: {},
         methods: {
-            handleGet(){
-                this.overlay.show = true;
+            handleGet({ id, plateNo ,plateColor }){
+                receiveCoupons({
+                    id, plateNo ,plateColor
+                }).then(data => {
+                    this.couponList = data.data
+                    this.overlay.show = true;
+                })
+            },
+            list(){
+                customerCarCouponList().then(data => {
+                    this.carList = data.data;
+                })
             }
         },
         computed: {},
         created() {
+            this.list();
         }
     }
 </script>
@@ -101,6 +103,7 @@
                 img{
                         height: 144px;
                         width: 144px;
+                    margin-left: -12px;
                 }
             }
             img{

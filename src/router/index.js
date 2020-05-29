@@ -7,18 +7,18 @@ import api from '@@/config'
 //webpackChunkName 一定要写，是code split 后的命名 [ChunkName].[hash].js
 const Home = () => import(/* webpackChunkName: "home" */ '@/pages/home');
 
-const Coupon = () => import(/* webpackChunkName: "user'" */ '@/pages/coupon');
+const Coupon = () => import(/* webpackChunkName: "user" */ '@/pages/coupon');
 
-const Parking = () => import(/* webpackChunkName: "user'" */ '@/pages/parking');
-const Search = () => import(/* webpackChunkName: "user'" */ '@/pages/parking/search');
+const Parking = () => import(/* webpackChunkName: "user" */ '@/pages/parking');
+const Search = () => import(/* webpackChunkName: "user" */ '@/pages/parking/search');
 
-const User = () => import(/* webpackChunkName: "user'" */ '@/pages/user');
-const Car = () => import(/* webpackChunkName: "car'" */ '@/pages/user/car');
-const Setting = () => import(/* webpackChunkName: "car'" */ '@/pages/user/setting');
-const Coupons = () => import(/* webpackChunkName: "car'" */ '@/pages/user/coupons');
-const Equity = () => import(/* webpackChunkName: "car'" */ '@/pages/user/equity');
+const User = () => import(/* webpackChunkName: "user" */ '@/pages/user');
+const Car = () => import(/* webpackChunkName: "car" */ '@/pages/user/car');
+const Setting = () => import(/* webpackChunkName: "car" */ '@/pages/user/setting');
+const Coupons = () => import(/* webpackChunkName: "car" */ '@/pages/user/coupons');
+const Equity = () => import(/* webpackChunkName: "car" */ '@/pages/user/equity');
 
-// const Author = () => import(/* webpackChunkName: "auth" */ '@/pages/auth/auth');
+const Author = () => import(/* webpackChunkName: "auth" */ '@/pages/auth/auth');
 const Login = () => import(/* webpackChunkName: "login" */ '@/pages/auth/login');
 const Register = () => import(/* webpackChunkName: "login" */ '@/pages/auth/regist');
 
@@ -28,7 +28,7 @@ const routes =[
         component:Home,
         name:'home',
         meta:{
-            // requireAuth:true
+            requireAuth:true,
             keepAlive:false
         },
         children:[
@@ -98,14 +98,14 @@ const routes =[
             },
         ]
     },
-    // {
-    //      path:'/author',
-    //      component:Author,
-    //      name:'author',
-    //      meta:{
-    //        title:'用户授权'
-    //      }
-    // },
+    {
+         path:'/author',
+         component:Author,
+         name:'author',
+         meta:{
+           title:'用户授权'
+         }
+    },
     {
         path:'/register',
         component:Register,
@@ -136,7 +136,7 @@ const routes =[
 
 const router = new Router({
     mode: 'history',
-    base:`/`,
+    base: process.env.VUE_APP_ROOT,
     routes,
     scrollBehavior (to, from, position) {
         if (position) {
@@ -148,40 +148,68 @@ const router = new Router({
 });
 
 
-router.beforeEach((to, from, next) => {
+let ua = window.navigator.userAgent.toLowerCase();
 
-    //url有token， 则存入sessionStorage
-    if (to.query.token){
-        store.dispatch('setUserToken', to.query.token)
-    }
+router.beforeEach((to, from, next) => {
+    console.log(location.href)
     if (to.meta.title) {
         document.title = to.meta.title + '- 停车券'
     }
-    next();
 
     // if(ua.match(/MicroMessenger/i) !== 'micromessenger'&& process.env.NODE_ENV === 'production'){
     //     location.href='https://w.url.cn/s/A02CPn0';
     // }
-
-    // if(ua.match(/MicroMessenger/i) == 'micromessenger'){
-    //     if(getCookie()){
-    //         next();
-    //     }else{
-    //         //跳转分享页
-    //         location.href='http://wwww.ynt.ai';
-    //     }
-    // }else{
-    //     //跳转分享页
-    //     location.href='http://wwww.ynt.ai';
+    // if(ua.match(/MicroMessenger/i) !== 'micromessenger' && to.path.indexOf('author') === -1){
+    //     console.log(3)
+    //     next({
+    //         path: '/author'
+    //     });
+    //
     // }
 
-    // if (!store.state.user.openId
-    //         && ua.match(/MicroMessenger/i) == 'micromessenger'
-    //         && to.path.indexOf('author') < 0 ) {
-    //     next({
-    //         path: '/author',
-    //         query: { redirect: to.path == '/'? '/home/account' : to.fullPath }
-    //     });
+    if(ua.match(/MicroMessenger/i) !== 'micromessenger' && to.path.indexOf('author') === -1){
+        console.log(2)
+        if (!store.state.user.openId && !to.query.openId){
+            console.log(4)
+            next({
+                path: '/author'
+            });
+        }else{
+            if (to.matched.some(r => r.meta.requireAuth)) {
+                if(store.state.user.userToken){
+                    console.log(7)
+                    next();
+                }else{
+                    console.log(6)
+                    next({
+                        path: '/login',
+                        query: { redirect: to.fullPath }
+                    });
+                }
+            }else{
+                console.log(5)
+                if(to.path.indexOf('login') === -1){
+                    next({
+                        path: '/author'
+                    });
+                }else{
+                    next();
+                }
+
+            }
+        }
+    }else {
+        console.log(1)
+        next()
+    }
+
+    next()
+
+    // if (!store.state.user.openId && to.path.indexOf('author') < 0 ) {
+    //         next({
+    //             path: '/author',
+    //             query: { redirect: to.fullPath }
+    //         });
     // }else {
     //     if (to.matched.some(r => r.meta.requireAuth)) {
     //         if(store.state.user.userToken){

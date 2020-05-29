@@ -1,86 +1,144 @@
 <template>
     <div class="coupons-container">
-        <van-tabs v-model="tabName" swipeable sticky>
-            <van-tab v-for="item in tabList" :title="item.label"></van-tab>
+        <van-tabs v-model="tabName" swipeable sticky @change="handleTab">
+            <van-tab v-for="item in tabList" :title="item.label" :name="item.value"></van-tab>
         </van-tabs>
         <van-list
                 class="coupons-list"
-                :class="{ filter:tabName != 0 }"
+                :class="{ filter:tabName != 1 }"
                 v-model="loading"
                 :finished="finished"
-                finished-text="没有更多了"
+                finished-text="没有停车券"
                 @load="onLoad">
-            <van-cell v-for="item in list" :key="item" :title="item" :class="{ used:tabName==1,expired:tabName==2 }">
+            <van-cell v-for="item in dataList" :key="item" :title="item" :class="{ used:tabName==2,expired:tabName==3 }">
                 <template #title>
                     <div class="cell-top flex">
                         <div class="flex">
-                            <span>￥<i>4000</i></span>
+                            <span>￥<i>{{ item.couponAmount }}</i></span>
                             <div class="cell-txt">
-                                <p>苏E8F2S8 <i>蓝牌</i></p>
-                                <p>2020–02–20 23:59到期</p>
+                                <p>{{ item.plateNo }} <i>{{ picker.columns[item.plateColor] }}</i></p>
+                                <p>{{ item.expirationTime }} 到期</p>
                             </div>
                         </div>
-                        <van-button v-if="tabName == 1" round size="mini">停车记录<van-icon name="arrow" /></van-button>
+                        <van-button v-if="tabName == 2" round size="mini" @click="handlePicker(item.id)">停车记录<van-icon name="arrow" /></van-button>
                     </div>
                     <div class="cell-bottom flex">
                         <div class="cell-bottom-left">
-                            <div class="bottom-content">可用于：苏州工业园区纳米大学产业园停车场、苏州生命之源停
-                                车场、苏州湾停车场，苏州中心停车场，苏州园区地园区、苏州
-                                北站停车场</div>
-                            <p>券码：209887671htuhbse2688999113</p>
+                            <div class="bottom-content">可用于：{{ item.parkingNames }}</div>
+                            <p>券码：{{ item.couponNo }}</p>
                         </div>
                         <van-icon name="arrow-up" />
                     </div>
                 </template>
             </van-cell>
         </van-list>
+        <van-popup class="popup-container" v-model="picker.show" position="right" >
+            <div class="popup-equity">
+                <div class="popup-title">
+                    <p>{{ picker.data.parkingName }}</p>
+                    <p>–{{ picker.data.realAmount }}</p>
+                </div>
+                <div class="popup-content">
+                    <van-row>
+                        <van-col span="7">车牌号码</van-col>
+                        <van-col span="17">{{ picker.data.parkingName }}</van-col>
+                        <van-col span="7">停车券码</van-col>
+                        <van-col span="17">{{ picker.data.couponNo }}</van-col>
+                        <van-col span="7">停车日期</van-col>
+                        <van-col span="17">{{ picker.data.entranceTime + ' 至 '+picker.data.exportTime }}</van-col>
+                        <van-col span="7">停车时长</van-col>
+                        <van-col span="17">{{ picker.data.parkingTime }}</van-col>
+                        <van-col span="7">停车费用</van-col>
+                        <van-col span="17">￥{{ picker.data.parkingAmount }}</van-col>
+                        <van-col span="7">停车券抵扣</van-col>
+                        <van-col span="17">￥{{ picker.data.verifyAmount }}</van-col>
+                        <van-col span="7">实际支付</van-col>
+                        <van-col span="17">￥{{ picker.data.realAmount }}</van-col>
+                    </van-row>
+                </div>
+            </div>
+        </van-popup>
     </div>
 </template>
 
 <script>
+    import { couponList,couponUseRecord } from '@/api/coupons-api'
     export default {
         name: "coupons",
         data() {
             return {
-                tabName:0,
+                tabName:1,
                 tabList:[
                     {
-                        value:0,
+                        value:1,
                         label:'未使用'
                     },
                     {
-                        value:1,
+                        value:2,
                         label:'已使用'
                     },
                     {
-                        value:2,
+                        value:3,
                         label:'已过期'
                     }
                 ],
-                list: [],
+                picker:{
+                    show:false,
+                    columns:['蓝色','黄色','黑色','白色','渐变绿色','黄绿双拼色','蓝白渐变色'],
+                    data:''
+                },
+                pageIndex:0,
+                dataList: [],
+                refreshing:false,
                 loading: false,
                 finished: false,
             }
         },
         components: {},
         methods: {
-            onLoad() {
-                // 异步更新数据
-                // setTimeout 仅做示例，真实场景中一般为 ajax 请求
-                setTimeout(() => {
-                    for (let i = 0; i < 10; i++) {
-                        this.list.push(this.list.length + 1);
-                    }
-
-                    // 加载状态结束
-                    this.loading = false;
-
-                    // 数据全部加载完成
-                    if (this.list.length >= 40) {
-                        this.finished = true;
-                    }
-                }, 1000);
+            handleTab(){
+                this.refreshing = true;
+                this.onLoad();
             },
+            handlePicker(customerCouponId){
+                let _data ={
+                    customerCouponId
+                }
+                couponUseRecord(_data).then(data => {
+                    this.picker.data = data.data
+                    this.picker.show = true;
+                })
+            },
+            onLoad() {
+                if (this.refreshing) {
+                    this.dataList = [];
+                    this.refreshing = false;
+                    this.pageIndex = 0
+                }
+                this.list(this.pageIndex)
+            },
+            list(page,pageSize = 8){
+                let _data ={
+                    couponStatus:this.tabName,
+                    page,
+                    pageSize
+                }
+                couponList(_data).then(data => {
+                    this.pageIndex ++;
+                    console.log(data)
+                    // this.dataList = [...this.dataList,...data.data.list];
+                    this.dataList = [...this.dataList,...data.data];
+                    // if(this.dataList.length >= data.data.count){
+                        this.finished = true;
+                    // }
+                    this.error = false;
+                    this.loading = false;
+                }).catch(err => {
+                    this.loading = false;
+                    this.error = true;
+                    this.finished = true;
+                })
+            }
         },
         computed: {},
         created() {
@@ -98,7 +156,7 @@
         .van-tabs{
             flex: 0 0 90px;
             padding-top: 8px;
-            background: url("./../../images/user-bg.png") center top no-repeat;
+            background: linear-gradient(90deg, #2196F3 0%, #2270E4 100%);
             .van-tabs__nav{
                 background: transparent;
                 .van-tab{

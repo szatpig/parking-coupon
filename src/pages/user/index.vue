@@ -1,14 +1,14 @@
 <template>
     <div class="user-container">
         <div class="head-wrap">
-            <img :src="user.headImg" alt="用户头像">
+            <img :src="headImgUrl || user.headImg" alt="用户头像">
             <div class="user-wrap">
                 <p>
-                    {{ user.nickname }}
+                    {{ nickname }}
                     <!--<i></i>-->
                 </p>
                 <p>
-                    {{ mobile.replace(/(\d{3})(\d{4})(\d{4})/,'$1xxxx$2') }}
+                    {{ phoneNo.replace(/(\d{3})(\d{4})(\d{4})/,'$1xxxx$3') }}
                     <!--<i @click="handleQuit"></i>-->
                 </p>
             </div>
@@ -119,7 +119,9 @@
         },
         computed: {
             ...mapState({
-                mobile: state => state.user.userInfo.name
+                phoneNo: state => state.user.userInfo.phoneNo,
+                headImgUrl: state => state.user.userInfo.headImgUrl,
+                nickname: state => state.user.userInfo.nickname
                 // menuList: state =>state.title.menuList
             }),
         },

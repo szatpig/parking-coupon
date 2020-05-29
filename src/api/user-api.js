@@ -21,6 +21,15 @@ export const customerCarUpdate = (data)=> fetch(api.api + '/customerCar/update',
     data
 });
 
+export const customerCarCouponList = (params)=> fetch(api.api + '/customerCar/listCouponOrderByStatus',{
+    type:'get',
+    params
+});
+
+export const receiveCoupons = (data)=> fetch(api.api + '/customerCar/receiveCoupons',{
+    data
+});
+
 //setting
 export const getByCustomerInfo = (params)=> fetch(api.api + '/equityVerifyPriority/getByCustomerId',{
     type:'get',
@@ -47,3 +56,4 @@ export const forgetPassword = (data)=> fetch(api.api + '/forgetPassword',{
 export const verificationCode = (data)=> fetch(api.api + '/verificationCode',{
     data
 });
+

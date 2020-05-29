@@ -2,7 +2,11 @@
 import fetch from '@/utils/fetch'
 import api from '@@/config'
 
-export const getWechatSign = (params)=> fetch(api.api + '/wx/jsSdk/jsapiSignature',{
+export const getWechatSign = (data)=> fetch(api.api + '/wechat/getSignature',{
+    data
+});
+
+export const getAuthorize = (params)=> fetch(api.api + '/wechat/getAuthorize',{
     type:'get',
     params
 });

@@ -16,7 +16,7 @@
                 <van-field
                     label="密码"
                     v-model.trim="user.password"
-                    maxlength="6"
+                    maxlength="12"
                     type="tel"
                     placeholder="请输入密码"
                     @input="handleCodeChange"
@@ -58,7 +58,8 @@
         methods: {
             ...mapActions([
                 'setUserToken',
-                'setUserInfo'
+                'setUserInfo',
+                'setOpenId',
             ]),
             handlePhoneChange(val){
                 this.user.phone = val.replace(/[^\d]/g,'');
@@ -133,6 +134,8 @@
             this.setUserToken(null);
             sessionStorage.clear();
             _openId &&(sessionStorage.setItem('openId',_openId))
+            _openId && this.setOpenId(_openId || '');
+
         }
     }
 </script>

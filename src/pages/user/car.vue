@@ -4,7 +4,7 @@
             <van-swipe-cell v-for="item in carList" :key="item.id">
                 <van-cell center  @click="handleShow(item)" >
                     <template #title>
-                        <img :src="require('./../../images/head-img.png')" alt="">
+                        <img :src="require('./../../images/car-head.png')" alt="">
                         <div class="custom-title">
                             <span class="custom-plat">{{ item.plateNo }}</span>
                             <span class="custom-color">{{ picker.columns[item.plateColor] }}</span>

@@ -25,24 +25,12 @@ export default {
                     //地理位置
                     'getLocation',
                     //分享到朋友圈
-                    'onMenuShareTimeline',
                     //发送给朋友
-                    'onMenuShareAppMessage',
-                    'hideMenuItems',
-                    'showMenuItems',
+                    'updateAppMessageShareData',
+                    'updateTimelineShareData',
                     'hideAllNonBaseMenuItem',
-                    'startRecord',
-                    'stopRecord',
-                    'onVoiceRecordEnd',
-                    'playVoice',
-                    'pauseVoice',
-                    'onVoicePlayEnd',
-                    'downloadVoice',
-                    'uploadVoice',
+                    'showMenuItems',
                     'closeWindow',
-                    'chooseImage',
-                    'previewImage',
-                    'uploadImage'
                 ] // 必填，需要使用的JS接口列表
             });
             wx.ready(()=>{
@@ -68,10 +56,10 @@ export default {
         console.log(sessionStorage.getItem('wx'));
         if(Number(sessionStorage.getItem('wx'))){
            if(isAndroid){
-               // this.wxShare();
+               this.wxShare();
            }
         }else{
-            // this.wxShare();
+            this.wxShare();
         }
 
     }

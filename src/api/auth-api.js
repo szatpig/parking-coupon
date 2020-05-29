@@ -10,6 +10,11 @@ export const userLogin = (data)=> fetch(api.api + '/loginByPassword',{
 export const userLoginByCode= (data)=> fetch(api.api + '/loginByCode',{
     data
 });
+//验证码登录
+export const openIdLogin= (data)=> fetch(api.api + '/loginByOpenId',{
+    data
+});
+
 
 //用户注册
 export const userRegister = (data)=> fetch(api.api + '/register',{

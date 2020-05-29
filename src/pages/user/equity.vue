@@ -1,10 +1,10 @@
 <template>
     <div class="equity-container">
         <div class="equity-wrap">
-            <p>苏E8F2S8 <span>（蓝牌)<van-icon name="arrow-down" /></span></p>
-            <p><span>余额</span><i>￥</i>768.00</p>
+            <p  @click="handlePicker">{{ search.plateNo }} <span>（{{ this.picker.columns[this.search.plateColor] }})<van-icon name="arrow-down" /></span></p>
+            <p><span>余额</span><i>￥</i>{{ picker.income }}</p>
         </div>
-        <van-tabs v-model="tabName" swipeable sticky>
+        <van-tabs v-model="search.tabName" swipeable sticky @change="handleTab">
             <van-tab v-for="item in tabList" :title="item.label"></van-tab>
         </van-tabs>
         <van-list
@@ -13,16 +13,20 @@
                 :finished="finished"
                 finished-text="没有更多了"
                 @load="onLoad">
-            <van-cell v-for="item in list" :key="item" :title="item" :value="item" is-link @click="handleShow(item)">
+            <van-cell v-for="item in dataList"
+                      :key="item.id"
+                      :value="search.tabName==0 ? (' + ' +item.equityBalance.toFixed(2)):(' - ' +item.changeAmount.toFixed(2))"
+                      is-link
+                      @click="handleShow(item)">
                 <template #title>
-                    <div class="equity-income" v-if="tabName==0">
-                        <p>工商银行苏州分行</p>
-                        <p>2020–02–14  12:24:24到期</p>
+                    <div class="equity-income" v-if="search.tabName==0">
+                        <p>{{ item.industryUser }}</p>
+                        <p>{{ item.expirationTime }} 到期</p>
                     </div>
                     <div class="expenditure" v-else>
-                        <p>苏州工业大学纳姆科技园停车场</p>
-                        <p>2020–02–14  12:24:24</p>
-                        <p>工商银行苏州分行权益金</p>
+                        <p>{{ item.parkingName }}</p>
+                        <p>{{ item.changeTime }}</p>
+                        <p>{{ typeList[item.changeType] }}</p>
                     </div>
                 </template>
             </van-cell>
@@ -142,15 +146,29 @@
             </div>
 
         </van-popup>
+        <van-popup class="popup-picker-container" v-model="picker.show" position="bottom">
+            <van-picker
+                    show-toolbar
+                    :columns="picker.carList"
+                    confirm-button-text="确定"
+                    @confirm="handleConfirm"
+                    @cancel="picker.show = false"
+            />
+        </van-popup>
     </div>
 </template>
 
 <script>
+    import { customerCarsAndEquity, payList, payDetail, incomeList, incomeDetail } from '@/api/coupons-api'
     export default {
         name: "equity",
         data() {
             return {
-                tabName:0,
+                search:{
+                    tabName:0,
+                    plateNo:'',
+                    plateColor:''
+                },
                 tabList:[
                     {
                         value:0,
@@ -161,8 +179,21 @@
                         label:'支出'
                     }
                 ],
-                list: [],
-                loading: false,
+                picker:{
+                    show:false,
+                    columns:['蓝色','黄色','黑色','白色','渐变绿色','黄绿双拼色','蓝白渐变色'],
+                    carList:[],
+                    income:0
+                },
+                typeList:{
+                    4:'权益金额到期返还',
+                    6:'车主使用权益金',
+                    8:'撤销权益金;'
+                },
+                pageIndex:0,
+                dataList: [],
+                refreshing:false,
+                loading: true,
                 finished: false,
                 popup:{
                     show:false,
@@ -172,29 +203,96 @@
         },
         components: {},
         methods: {
-            onLoad() {
-                // 异步更新数据
-                // setTimeout 仅做示例，真实场景中一般为 ajax 请求
-                setTimeout(() => {
-                    for (let i = 0; i < 10; i++) {
-                        this.list.push(this.list.length + 1);
-                    }
-
-                    // 加载状态结束
-                    this.loading = false;
-
-                    // 数据全部加载完成
-                    if (this.list.length >= 40) {
-                        this.finished = true;
-                    }
-                }, 1000);
-            },
-            handleShow(item){
+            async handleShow(item){
+                let data = '';
+                if(this.search.tabName){
+                    data = await payDetail({ changeLogId:item.id })
+                }else{
+                    data = await incomeDetail({ changeLogId:item.id })
+                }
                 this.$router.push({
                     query:{
                         type:item
                     }
                 });
+            },
+            handleTab(name){
+                this.refreshing = true;
+                this.search.tabName = name;
+                this.onLoad();
+            },
+            handlePicker(){
+                this.picker.show = true;
+            },
+            handleConfirm(val,index){
+                console.log(val,index)
+                this.search.plateNo = this.picker.carList[index].text;
+                this.search.plateColor = this.picker.carList[index].color;
+                this.picker.show = false;
+                this.search.tabName = 0;
+                this.refreshing = true;
+                this.onLoad()
+            },
+            async onLoad() {
+                // 异步更新数据
+                // setTimeout 仅做示例，真实场景中一般为 ajax 请求
+                if (this.refreshing) {
+                    this.dataList = [];
+                    this.refreshing = false;
+                    this.pageIndex = 0
+                }
+                this.list(this.pageIndex)
+            },
+
+            async list(page,pageSize = 8){
+                let _data ={
+                    plateNo:this.search.plateNo,
+                    plateColor:this.search.plateColor,
+                    page,
+                    pageSize
+                }
+                let data = []
+
+                try {
+                    if(this.search.tabName){
+                        data = await payList(_data)
+                        this.dataList = [...this.dataList,...data.data];
+
+                    }else{
+                        data = await incomeList(_data)
+                        this.picker.income = data.data.equityBalanceSum
+                        this.dataList = [...this.dataList,...data.data.ownerEquityIncomeVOS];
+                    }
+                    this.pageIndex ++;
+
+                    // this.dataList = [...this.dataList,...data.data.list];
+
+                    // if(this.dataList.length >= data.data.count){
+                    this.finished = true;
+                    // }
+                    this.error = false;
+                    this.loading = false;
+                }catch (e) {
+                    this.loading = false;
+                    this.error = true;
+                    this.finished = true;
+                    console.log(e);
+                }
+            },
+            init(){
+                let _data ={
+
+                }
+                customerCarsAndEquity(_data).then(data => {
+                    this.picker.carList = data.data.customerCars.map(item => ({
+                        text:item.plateNo,
+                        value:item.customerId,
+                        color:0
+                    }));
+                    this.search.plateNo = this.picker.carList[0].text;
+                    this.search.plateColor = this.picker.carList[0].color;
+                    this.loading=false;
+                })
             }
         },
         watch: {
@@ -216,6 +314,7 @@
             }else{
                 this.popup.show = false;
             }
+            this.init();
         }
     }
 </script>

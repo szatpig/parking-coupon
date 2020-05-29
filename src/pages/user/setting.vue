@@ -1,17 +1,30 @@
 <template>
     <div class="setting-container">
         <div class="setting-wrap">
-            <van-cell title="修改密码" is-link @click="handleShow" />
+            <van-cell title="修改密码" is-link @click="handleShow('password')" />
             <van-cell title="优先使用权益金">
                 <template>
-                    <van-switch :active-value="0" :inactive-value="1" v-model="priority" size="20px" />
+                    <van-switch :active-value="0" :inactive-value="1" v-model="priority" @change="setCustomer" size="20px" />
                 </template>
             </van-cell>
             <van-cell title="优先使用日期较近的权益金">
                 <template>
-                    <van-switch :active-value="0" :inactive-value="1" v-model="equityPriority" size="20px" />
+                    <van-switch :active-value="0" :inactive-value="1" v-model="equityPriority" @change="setCustomer" size="20px" />
                 </template>
             </van-cell>
+            <p v-show="!!equityPriority" class="setting-tips">请拖动权益金扣款顺序</p>
+            <van-cell-group v-show="!!equityPriority" class="drag-container" v-dragula="listIndustry" service="my-second" drake="first">
+                <van-cell center
+                          v-for="(item,index) in listIndustry"
+                          :title="item.industryUserName"
+                          :label="item.expirationTime + ' 到期'"
+                          :key="item.industryUserId"
+                          @click="handleDragClick">
+                    <template #right-icon>
+                        <van-icon name="exchange" />
+                    </template>
+                </van-cell>
+            </van-cell-group>
         </div>
         <van-popup class="popup-container popup-password" v-model="popup.show" position="right" >
             <van-form @submit="handleSubmit" :show-error-message="false">
@@ -54,7 +67,7 @@
                     @blur="handelPageAdjust" />
                 <p class="popup-flex">
                     <span>密码为6-12位字符</span>
-                    <span @click="handleShowReset" v-if="$route.query.type == 'password'">忘记密码？</span>
+                    <span @click="handleShow('code')" v-if="$route.query.type == 'password'">忘记密码？</span>
                 </p>
                 <div class="popup-btn">
                     <van-button round size="large" type="info" :disabled="!!!popup.data.confirmPassword" native-type="submit">确定</van-button>
@@ -64,7 +77,7 @@
         <van-popup class="popup-container popup-code" v-model="popupCode.show" position="right" >
             <van-form @submit="handleReset" :show-error-message="false">
                 <p class="code-tips">发送验证码到您的手机</p>
-                <p class="code-phone">{{ mobile.replace(/(\d{3})(\d{4})(\d{4})/,'$1xxxx$2') }}</p>
+                <p class="code-phone">{{ phoneNo.replace(/(\d{3})(\d{4})(\d{4})/,'$1xxxx$3') }}</p>
                 <van-field
                         v-model.trim="popupCode.data.code"
                         type="tel"
@@ -88,16 +101,26 @@
 </template>
 
 <script>
+    import Vue from 'vue'
     import { sendSms } from '@/api/auth-api'
-    import { getByCustomerInfo, getByCustomerInfoUpdate, listIndustryEquity, resetPassword, forgetPassword, verificationCode } from '@/api/user-api'
+    import {
+        getByCustomerInfo,
+        getByCustomerInfoUpdate,
+        listIndustryEquity,
+        resetPassword,
+        verificationCode,
+        forgetPassword  } from '@/api/user-api'
     import YntCode from '@/components/YntCode'
     import { mapState } from  'vuex'
+
     export default {
         name: "setting",
         data() {
             return {
-                equityPriority:false,
-                priority:false,
+                id:0,
+                equityPriority:0,
+                priority:0,
+                listIndustry:[],
                 popup:{
                     show:false,
                     data:{
@@ -123,26 +146,41 @@
             YntCode
         },
         methods: {
-            handleShow(){
+            handleShow(val){
+                this.popup.data ={
+                    password:'',
+                    newPassword:'',
+                    confirmPassword:''
+                }
                 this.$router.push({
                     query:{
-                        type:'password'
-                    }
-                });
-
-            },
-            handleShowReset(){
-                this.$router.replace({
-                    query:{
-                        type:'code'
+                        type:val
                     }
                 });
             },
             handleSubmit(val){
                 if(this.$route.query.type == 'reset'){
-                    forgetPassword(val).then(() => {
+                    const { phone,code } = this.$route.query
+                    forgetPassword({
+                        phone,
+                        code,
+                        ...val
+                    }).then(() => {
                         this.$toast('密码修改成功')
                         this.$router.replace('/home/user/setting');
+                    }).catch(err => {
+                        if(err.status == 9002 || err.status == 2003){
+                            setTimeout(()=>{
+                                this.popupCode.data.code = ''
+                                this.$toast(err.msg)
+                            },100)
+                            this.$router.replace({
+                                path:'/home/user/setting',
+                                query:{
+                                    type:'code'
+                                }
+                            });
+                        }
                     })
                 }else{
                     resetPassword(val).then(() => {
@@ -154,7 +192,7 @@
             },
             handleSend(){
                 let _data = {
-                    plateNo: this.mobile,
+                    plateNo: this.phoneNo,
                     type:'wx_password'
                 };
                 sendSms(_data).then(data => {
@@ -165,18 +203,47 @@
                     },200);
                 })
             },
-            handleReset(){
+            handleReset(val){
+                this.popup.data ={
+                    password:'',
+                    newPassword:'',
+                    confirmPassword:''
+                }
                 this.$router.replace({
                     query:{
-                        type:'reset'
+                        type:'reset',
+                        phone:this.phoneNo,
+                        ...val
                     }
                 });
             },
 
+            handleDragClick(e){
+                e.stopPropagation();
+                e.preventDefault();
+            },
+
+            setCustomer(){
+                let _data ={
+                    id:this.id,
+                    priority:this.priority,
+                    equityPriority:this.equityPriority,
+                    equityPriorityOrder:this.listIndustry.map(item => item.industryUserId).join(',')
+                }
+                getByCustomerInfoUpdate(_data).then(data => {
+                    this.$toast('设置成功')
+                })
+            },
             getByCustomer(){
                 getByCustomerInfo().then(data => {
                     this.priority = data.data.priority;
-                    this.equityPriority = data.data.equityPriority
+                    this.equityPriority = data.data.equityPriority;
+                    this.id = data.data.id
+                })
+            },
+            getIndustryList(){
+                listIndustryEquity().then(data => {
+                    this.listIndustry = data.data;
                 })
             },
 
@@ -208,8 +275,15 @@
         },
         computed: {
             ...mapState({
-                mobile: state => state.user.userInfo.name
+                phoneNo: state => state.user.userInfo.phoneNo
             }),
+        },
+        mounted(){
+            // Dragula([document.getElementById('drag-container')])
+            // this.$Dragula.options('equity-bag', {
+            //     direction: 'vertical'
+            // })
+
         },
         created() {
             let { type } = this.$route.query;
@@ -223,12 +297,26 @@
                 this.popupCode.show = false;
             }
             this.getByCustomer();
+            this.getIndustryList();
+            const service = this.$dragula.$service
+
+            service.options( 'first', { direction: 'vertical' } )
+            service.eventBus.$on('dropModel', ({ dragIndex,dropIndex }) => {
+                // let _tempList = JSON.parse(JSON.stringify(this.listIndustry))
+                // console.log('dragend: ', dragIndex,dropIndex,this.listIndustry)
+                // let _temp = _tempList[dragIndex]
+                // _tempList[dragIndex] = _tempList[dropIndex]
+                // _tempList[dropIndex] = _temp;
+                //
+                // this.listIndustry = _tempList
+            })
         }
     }
 </script>
 
 <style lang="less">
     .setting-container{
+        touch-action: pan-y;
         input[type=text],input[type=tel],input[type=password]{
             font-size: 28px;
             height: 48px;
@@ -239,6 +327,21 @@
                     flex: 1.5;
                 }
 
+            }
+        }
+        .setting-tips{
+            margin-top: 8px;
+            height:78px;
+            line-height: 78px;
+            padding: 0 32px;
+            background-color: #fff;
+            font-size: 26px;
+            color: #909499;
+        }
+        .drag-container{
+            .van-icon-exchange{
+                font-size: 40px;
+                color: #909499;
             }
         }
     }

@@ -3,18 +3,17 @@
         <div class="parking-wrapper" id="parking-wrapper" />
         <div class="parking-location">
             <van-search
-                    v-model="value"
                     shape="round"
                     background="transparent"
                     placeholder="搜索停车场"
                     readonly
-                    @click="$router.push('/home/parking/search')"
+                    @click="handleSearch"
             />
-            <div class="location-ex" v-show="!!!active">
+            <div class="location-ex" v-if="!!!active && dataList.length">
                 <div class="location-item flex">
                     <div class="location-txt">
-                        <p class="flex"><van-tag>最近</van-tag>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
-                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                        <p class="flex"><van-tag>最近</van-tag>{{ dataList[0].parkingName }} <van-tag type="warning" v-show="dataList[0].haveCoupon">券</van-tag><van-tag type="success" v-show="dataList[0].haveEquity">金</van-tag></p>
+                        <p class="flex"><span class="location-distance"> {{(dataList[0].distance/1000).toFixed(2) }}公里</span>{{ dataList[0].location }}</p>
                     </div>
                     <div class="location-path">
                         <SvgComponent icon="daohang" />
@@ -23,103 +22,15 @@
                 </div>
             </div>
             <div class="location-nav" :class="{ active:active }" @click="handleMore">
-                <SvgComponent icon="pull" class="icon-pull" />
-                <p>附近有10个合作停车场</p>
+                <SvgComponent icon="pull" class="icon-pull" v-show="dataList.length" />
+                <p v-if="dataList.length">附近有 {{ dataList.length }} 个合作停车场</p>
+                <p v-else>附近未找到合作停车场，您可以尝试搜索其他停车场</p>
             </div>
             <div class="location-list" :class="{ active:active }">
-                <div class="location-item flex">
+                <div class="location-item flex" v-for="(item,index) in dataList">
                     <div class="location-txt">
-                        <p><van-tag>最近</van-tag>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
-                        <p>苏州工业园区独墅湖高教区若水路388…</p>
-                    </div>
-                    <div class="location-path">
-                        <SvgComponent icon="daohang" />
-                        导航
-                    </div>
-                </div>
-                <div class="location-item flex">
-                    <div class="location-txt">
-                        <p><van-tag v-if="index == 0">最近</van-tag>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
-                        <p>苏州工业园区独墅湖高教区若水路388…</p>
-                    </div>
-                    <div class="location-path">
-                        <SvgComponent icon="daohang" />
-                        导航
-                    </div>
-                </div>
-                <div class="location-item flex">
-                    <div class="location-txt">
-                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
-                        <p>苏州工业园区独墅湖高教区若水路388…</p>
-                    </div>
-                    <div class="location-path">
-                        导航
-                    </div>
-                </div>
-                <div class="location-item flex">
-                    <div class="location-txt">
-                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
-                        <p>苏州工业园区独墅湖高教区若水路388…</p>
-                    </div>
-                    <div class="location-path">
-                        <SvgComponent icon="daohang" />
-                        导航
-                    </div>
-                </div>
-                <div class="location-item flex">
-                    <div class="location-txt">
-                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
-                        <p>苏州工业园区独墅湖高教区若水路388…</p>
-                    </div>
-                    <div class="location-path">
-                        <SvgComponent icon="daohang" />
-                        导航
-                    </div>
-                </div>
-                <div class="location-item flex">
-                    <div class="location-txt">
-                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
-                        <p>苏州工业园区独墅湖高教区若水路388…</p>
-                    </div>
-                    <div class="location-path">
-                        <SvgComponent icon="daohang" />
-                        导航
-                    </div>
-                </div>
-                <div class="location-item flex">
-                    <div class="location-txt">
-                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
-                        <p>苏州工业园区独墅湖高教区若水路388…</p>
-                    </div>
-                    <div class="location-path">
-                        <SvgComponent icon="daohang" />
-                        导航
-                    </div>
-                </div>
-                <div class="location-item flex">
-                    <div class="location-txt">
-                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
-                        <p>苏州工业园区独墅湖高教区若水路388…</p>
-                    </div>
-                    <div class="location-path">
-                        <SvgComponent icon="daohang" />
-                        导航
-                    </div>
-                </div>
-                <div class="location-item flex">
-                    <div class="location-txt">
-                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
-                        <p>苏州工业园区独墅湖高教区若水路388…</p>
-                    </div>
-                    <div class="location-path">
-                        <SvgComponent icon="daohang" />
-                        导航
-                    </div>
-                </div>
-                <div class="location-item flex">
-                    <div class="location-txt">
-                        <p>苏州纳米生物纳米技术与… <van-tag type="warning">券</van-tag><van-tag type="success">金</van-tag></p>
-                        <p>苏州工业园区独墅湖高教区若水路388…</p>
+                        <p class="flex"><van-tag v-if="index == 0">最近</van-tag>{{ item.parkingName }} <van-tag type="warning" v-show="item.haveCoupon">券</van-tag><van-tag type="success" v-show="item.haveEquity">金</van-tag></p>
+                        <p class="flex"><span class="location-distance"> {{(dataList[0].distance/1000).toFixed(2) }}公里</span>{{ item.location }}</p>
                     </div>
                     <div class="location-path">
                         <SvgComponent icon="daohang" />
@@ -134,12 +45,16 @@
 <script>
     import WxMixin from '@/mixins/wxMixin'
     import SvgComponent from '@/components/svg'
+    import { parkingList } from '@/api/parking-api'
     export default {
         name: "parking",
         data() {
             return {
                 active:false,
-                mapInstance:null
+                mapInstance:null,
+                dataList: [],
+                longitude:'120.76',
+                latitude:'31.28'
             }
         },
         components: {
@@ -150,24 +65,58 @@
             init() {
                 this.mapInstance = new qq.maps.Map(document.getElementById("parking-wrapper"), {
                     // 地图的中心地理坐标。
-                    center: new qq.maps.LatLng(39.916527, 116.397128),
+                    center: new qq.maps.LatLng(this.latitude, this.longitude),
                     zoom: 13,
                     scaleControl: false,
                     zoomControl: false,
                     panControl: false,
                     mapTypeControl:false
                 });
+                this.list();
+            },
+            handleSearch(){
+                this.$router.push({
+                    path:'/home/parking/search',
+                    query:{
+                        latitude:this.latitude,
+                        longitude:this.longitude
+                    }
+                })
             },
             handleMore(){
+                if(!!!this.dataList.length) return;
                 this.active = !this.active
+            },
+            list(page,pageSize = 8){
+                let _data ={
+                    key:'',
+                    longitude:this.longitude,
+                    latitude:this.latitude,
+                    page,pageSize
+                }
+                parkingList(_data).then(data => {
+                    this.dataList = data.data;
+                }).catch(err => {})
             }
         },
         computed: {},
         mounted(){
-            this.init();
+
         },
         created() {
-
+            wx.ready(()=>{
+                //这里调用api
+                wx.getLocation({
+                    type: 'wgs84', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+                    success:  (data) => {
+                        this.latitude = data.latitude; // 纬度，浮点数，范围为90 ~ -90
+                        this.longitude = data.longitude; // 经度，浮点数，范围为180 ~ -180。
+                        var speed = data.speed; // 速度，以米/每秒计
+                        var accuracy = data.accuracy; // 位置精度
+                        this.init();
+                    }
+                });
+            });
         }
     }
 </script>
@@ -244,7 +193,15 @@
                     height: 2px;
                     background-color: #EEF1F5;
                 }
+                &:first-child{
+                    .location-txt{
+                        .location-name{
+                            width: 65%;
+                        }
+                    }
+                }
                 .location-txt{
+                    width: 88%;
                     font-size: 32px;
                     color: #293547;
                     .van-tag{
@@ -255,6 +212,35 @@
                         font-size: 24px;
                         color: #909499;
 
+                    }
+                    .location-name{
+                        width: 78%;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        margin-right: 12px;
+                    }
+                    .location-adr{
+                        max-width: 46%;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                    .location-distance{
+                        font-size: 28px;
+                        color: #57626D;
+                        padding-right: 20px;
+                        margin-right: 20px;
+                        position: relative;
+                        &:after{
+                            content: '';
+                            height: 24px;
+                            width: 2px;
+                            background-color: #DDDEE1 ;
+                            transform: translateY(-50%);
+                            position: absolute;
+                            top: 50%;
+                            right: 0;
+                        }
                     }
                 }
                 .location-path{

@@ -3,10 +3,11 @@
 </template>
 
 <script>
-    import { URLencode } from '@/utils/util'
+    import { URLencode,getCookie } from '@/utils/util'
     import { mapActions } from  'vuex'
     import { openIdLogin } from '@/api/auth-api'
-    import { getCookie } from  '@/utils/util'
+    import { getAuthorize } from '@/api/common-api'
+    import site from '@@/config'
     export default {
         name: "auth",
         data() {
@@ -23,37 +24,50 @@
             ]),
             turnTo(){
                 if(this.$route.query.redirect
-                        && this.$route.query.redirect.indexOf('/login') < 0
-                        && this.$route.query.redirect !='/'){
+                    && this.$route.query.redirect.indexOf('/login') < 0
+                    && this.$route.query.redirect !='/'){
                     this.$router.push({ path: this.$route.query.redirect });
                 }else{
-                    this.$router.push({ path:'/home/account'});
+                    this.$router.push({ path:'/home/user'});
                 }
             },
             async handleOpenIdLogin(){
-                await this.setOpenId(this.$route.query.auth_openId);
                 let _data = {
-                    openId:this.$route.query.auth_openId
+                    openId:this.$route.query.openId
                 };
-                openIdLogin(_data).then( async (data) =>{
-                    await this.userInfo(data.data);
-                    await this.userToken(data.data.token);
+                try {
+                    await this.setOpenId(this.$route.query.openId || '');
+                    const data = await openIdLogin(_data);
+                    await this.setUserInfo(data.data);
+                    await this.setUserToken(data.data.token);
                     this.turnTo();
-                }).catch( err => {
-                    this.$router.push({ path:'/login' });
-                })
+                }catch (e) {
+                    console.log(e);
+                    if(e.status === 5011){
+                        this.$router.replace({
+                            path:'/login',
+                            query:{
+                                openId:this.$route.query.openId
+                            }
+                        })
+                    }
+                }
+            },
+            getAuthorize(){
+
             }
         },
         computed: {},
         created() {
-            if(!!!this.$store.state.user.openId
-                    && !!!this.$route.query.auth_openId){
-                let ua = window.navigator.userAgent.toLowerCase();
-                if(ua.match(/MicroMessenger/i) == 'micromessenger'){// 跳转到微信授权页面
-                    window.location.href = this.webUrl + '/weixin/auth/getOpenId?url='+ URLencode(api_config.authorUrl + this.$router.currentRoute.fullPath) + '&type=1'
-                }else {
-                    this.$router.push('/login')
+            console.log(this.$store.state.user.openId , this.$route.query.openId)
+            if(!!!this.$store.state.user.openId && !!!this.$route.query.openId){
+                // 跳转到微信授权页面
+                let _data ={
+                    url:'/wx/mp/etc/wechat/getAuthorize?url='+ location.origin + location.pathname
                 }
+                // getAuthorize(_data)
+                console.log(_data.url)
+                location.href = _data.url
             }else{// 如果有token 但是vuex中没有用户登录信息则做登录操作
                 this.handleOpenIdLogin()
             }
