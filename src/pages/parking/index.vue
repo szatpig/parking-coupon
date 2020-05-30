@@ -2,6 +2,7 @@
     <div class="parking-container">
         <div class="parking-wrapper" id="parking-wrapper" />
         <div class="parking-location">
+            <SvgComponent v-if="!!!active" class="location-svg" icon="location" @click="handleRelocation" />
             <van-search
                     shape="round"
                     background="transparent"
@@ -12,8 +13,15 @@
             <div class="location-ex" v-if="!!!active && dataList.length">
                 <div class="location-item flex">
                     <div class="location-txt">
-                        <p class="flex"><van-tag>最近</van-tag>{{ dataList[0].parkingName }} <van-tag type="warning" v-show="dataList[0].haveCoupon">券</van-tag><van-tag type="success" v-show="dataList[0].haveEquity">金</van-tag></p>
-                        <p class="flex"><span class="location-distance"> {{(dataList[0].distance/1000).toFixed(2) }}公里</span>{{ dataList[0].location }}</p>
+                        <p class="flex">
+                            <van-tag>最近</van-tag>
+                            <span class="location-name">{{ dataList[0].parkingName }}</span>
+                            <van-tag type="warning" v-show="dataList[0].haveCoupon">券</van-tag>
+                            <van-tag type="success" v-show="dataList[0].haveEquity">金</van-tag></p>
+                        <p class="flex">
+                            <span class="location-distance"> {{(dataList[0].distance/1000).toFixed(2) }}公里</span>
+                            <span class="location-adr">{{ dataList[0].location }}</span>
+                        </p>
                     </div>
                     <div class="location-path">
                         <SvgComponent icon="daohang" />
@@ -29,8 +37,16 @@
             <div class="location-list" :class="{ active:active }">
                 <div class="location-item flex" v-for="(item,index) in dataList">
                     <div class="location-txt">
-                        <p class="flex"><van-tag v-if="index == 0">最近</van-tag>{{ item.parkingName }} <van-tag type="warning" v-show="item.haveCoupon">券</van-tag><van-tag type="success" v-show="item.haveEquity">金</van-tag></p>
-                        <p class="flex"><span class="location-distance"> {{(dataList[0].distance/1000).toFixed(2) }}公里</span>{{ item.location }}</p>
+                        <p class="flex">
+                            <van-tag v-if="index == 0">最近</van-tag>
+                            <span class="location-name">{{ item.parkingName }}</span>
+                            <van-tag type="warning" v-show="item.haveCoupon">券</van-tag>
+                            <van-tag type="success" v-show="item.haveEquity">金</van-tag>
+                        </p>
+                        <p class="flex">
+                            <span class="location-distance"> {{(dataList[0].distance/1000).toFixed(2) }}公里</span>
+                            <span class="location-adr">{{ item.location }}</span>
+                        </p>
                     </div>
                     <div class="location-path">
                         <SvgComponent icon="daohang" />
@@ -74,6 +90,22 @@
                 });
                 this.list();
             },
+            wxGetLocation(){
+                wx.getLocation({
+                    type: 'wgs84', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+                    success:  (data) => {
+                        this.latitude = data.latitude; // 纬度，浮点数，范围为90 ~ -90
+                        this.longitude = data.longitude; // 经度，浮点数，范围为180 ~ -180。
+                        this.mapMoveTo(data);
+                    }
+                });
+            },
+            mapMoveTo({ latitude,longitude }){
+                this.mapInstance.panTo(new qq.maps.LatLng(latitude, longitude));
+            },
+            handleRelocation(){ //定位
+                this.wxGetLocation();
+            },
             handleSearch(){
                 this.$router.push({
                     path:'/home/parking/search',
@@ -111,8 +143,6 @@
                     success:  (data) => {
                         this.latitude = data.latitude; // 纬度，浮点数，范围为90 ~ -90
                         this.longitude = data.longitude; // 经度，浮点数，范围为180 ~ -180。
-                        var speed = data.speed; // 速度，以米/每秒计
-                        var accuracy = data.accuracy; // 位置精度
                         this.init();
                     }
                 });
@@ -137,6 +167,13 @@
             left:0;
             right: 0;
             bottom: 100px;
+            .location-svg{
+                position: absolute;
+                right: 12px ;
+                top:-80px;
+                width: 84px;
+                height: 84px;
+            }
             .van-search{
                 padding: 10px 16px 24px;
                 .van-search__content{

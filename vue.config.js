@@ -56,7 +56,7 @@ module.exports = {
         }
     },
     pluginOptions: {
-      vconsole: { enable: false /* others... */ },
+      vconsole: { enable: true /* others... */ },
       'style-resources-loader': {
         preProcessor: 'less',
         patterns: [
