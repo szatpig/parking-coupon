@@ -25,7 +25,7 @@
                     </div>
                     <div class="cell-bottom flex">
                         <div class="cell-bottom-left">
-                            <div class="bottom-content">可用于：{{ item.parkingNames }}</div>
+                            <div class="bottom-content">可用于：{{ item.parkingNames || '--' }}</div>
                             <p>券码：{{ item.couponNo }}</p>
                         </div>
                         <van-icon name="arrow-up" />
@@ -316,6 +316,9 @@
                     .cell-bottom-left{
                         height: 30px;
                         overflow: hidden;
+                        .bottom-content{
+                            width: 646px;
+                        }
                     }
                     .van-icon{
                         margin-top: 6px;

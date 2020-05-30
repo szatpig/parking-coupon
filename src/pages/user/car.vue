@@ -229,7 +229,7 @@
                     margin-left: 20px;
                     .custom-color{
                         color: #969799;
-                        font-size: 12px;
+                        font-size: 24px;
                     }
                 }
             }

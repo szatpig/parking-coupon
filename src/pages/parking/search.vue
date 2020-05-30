@@ -28,16 +28,24 @@
                         <van-tag type="success" v-show="item.haveEquity">金</van-tag>
                     </p>
                     <p class="flex">
-                        <span class="location-distance"> {{(dataList[0].distance/1000).toFixed(2) }}公里</span>
+                        <span class="location-distance"> {{(item.distance/1000).toFixed(2) }}公里</span>
                         <span class="location-adr">{{ item.location }}</span>
                     </p>
                 </div>
-                <div class="location-path">
+                <div class="location-path" @click="handleShowSheet(item,$event)">
                     <SvgComponent icon="daohang" />
                     导航
                 </div>
             </div>
         </van-list>
+        <van-action-sheet
+                class="sheet-popover"
+                v-model="sheet.show"
+                :actions="sheet.data"
+                cancel-text="取消"
+                @cancel="sheet.show = false"
+                @select="handleSelect"
+        />
     </div>
 </template>
 
@@ -54,6 +62,14 @@
                 refreshing:false,
                 loading: false,
                 finished: false,
+                sheet:{
+                    show:false,
+                    temp:'',
+                    url:[],
+                    data:[
+                        {name:"腾讯地图"},{name:"高德地图"},{name:"百度地图"}
+                    ]
+                }
             }
         },
         components: {
@@ -93,6 +109,37 @@
                     this.error = true;
                     this.finished = true;
                 })
+            },
+            initUrl({ longitude,latitude,location }){
+                let u = navigator.userAgent, app = navigator.appVersion;
+                let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //g
+                if (isAndroid) {
+                    // 百度地图uri api
+                    this.sheet.url[0] = "bdapp://map/navi?location=" + latitude + "," + longitude + "&query=" + location;
+                    // 高德地图uri api
+                    this.sheet.url[1] = "androidamap://navi?sourceApplication=xlwx&poiname=" + location + "&latitude=" + latitude + "&lon=" + longitude + "&dev=1&style=2";
+                    // 腾讯地图uri api
+                    this.sheet.url[2] = "qqmap://map/marker?marker=coord:" + latitude + "," + longitude + ";title:" + location + "&referer=xlwx";
+                } else {
+                    // 百度地图uri api
+                    this.sheet.url[0] = "baidumap://map/navi?location=" + latitude + "," + longitude + "&query="+ location;
+                    // 高德地图uri api
+                    this.sheet.url[1] = "iosamap://navi?sourceApplication=xlwx&poiname=" + location + "&lat=" + latitude + "&lon=" + longitude + "&dev=1&style=2";
+                    // 腾讯地图uri api
+                    this.sheet.url[2] = "qqmap://map/marker?marker=coord:" + latitude + "," + longitude + ";title:" + location + "&referer=xlwx";
+                }
+            },
+            handleShowSheet({ latitude,longitude,location },e) {
+                e.stopPropagation();
+                e.preventDefault();
+                this.sheet.show = true;
+                this.sheet.temp = row;
+                this.initUrl({
+                    latitude,longitude,location
+                })
+            },
+            handleSelect(action,index){
+                location.href = this.sheet.url[index]
             }
         },
         computed: {},
@@ -175,6 +222,7 @@
                         overflow: hidden;
                         text-overflow: ellipsis;
                         margin-right: 12px;
+                        white-space: nowrap;
                     }
                     .location-distance{
                         font-size: 28px;

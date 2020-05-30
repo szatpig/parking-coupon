@@ -159,13 +159,6 @@ router.beforeEach((to, from, next) => {
     // if(ua.match(/MicroMessenger/i) !== 'micromessenger'&& process.env.NODE_ENV === 'production'){
     //     location.href='https://w.url.cn/s/A02CPn0';
     // }
-    // if(ua.match(/MicroMessenger/i) !== 'micromessenger' && to.path.indexOf('author') === -1){
-    //     console.log(3)
-    //     next({
-    //         path: '/author'
-    //     });
-    //
-    // }
 
     if(ua.match(/MicroMessenger/i) !== 'micromessenger' && to.path.indexOf('author') === -1){
         console.log(2)
@@ -203,27 +196,6 @@ router.beforeEach((to, from, next) => {
         next()
     }
 
-    next()
-
-    // if (!store.state.user.openId && to.path.indexOf('author') < 0 ) {
-    //         next({
-    //             path: '/author',
-    //             query: { redirect: to.fullPath }
-    //         });
-    // }else {
-    //     if (to.matched.some(r => r.meta.requireAuth)) {
-    //         if(store.state.user.userToken){
-    //             next();
-    //         }else{
-    //             next({
-    //                 path: '/login',
-    //                 query: { redirect: to.fullPath }
-    //             });
-    //         }
-    //     }else{
-    //         next();
-    //     }
-    // }
 });
 
 

@@ -2,7 +2,7 @@
     <div class="parking-container">
         <div class="parking-wrapper" id="parking-wrapper" />
         <div class="parking-location">
-            <SvgComponent v-if="!!!active" class="location-svg" icon="location" @click="handleRelocation" />
+            <SvgComponent v-if="!!!active" class="location-svg" icon="location" @on-click="mapRelocation" />
             <van-search
                     shape="round"
                     background="transparent"
@@ -10,20 +10,20 @@
                     readonly
                     @click="handleSearch"
             />
-            <div class="location-ex" v-if="!!!active && dataList.length">
+            <div class="location-ex" v-if="!!!active && locationData">
                 <div class="location-item flex">
                     <div class="location-txt">
                         <p class="flex">
-                            <van-tag>最近</van-tag>
-                            <span class="location-name">{{ dataList[0].parkingName }}</span>
-                            <van-tag type="warning" v-show="dataList[0].haveCoupon">券</van-tag>
-                            <van-tag type="success" v-show="dataList[0].haveEquity">金</van-tag></p>
+                            <van-tag v-show="flag">最近</van-tag>
+                            <span class="location-name">{{ locationData.parkingName }}</span>
+                            <van-tag type="warning" v-show="locationData.haveCoupon">券</van-tag>
+                            <van-tag type="success" v-show="locationData.haveEquity">金</van-tag></p>
                         <p class="flex">
-                            <span class="location-distance"> {{(dataList[0].distance/1000).toFixed(2) }}公里</span>
-                            <span class="location-adr">{{ dataList[0].location }}</span>
+                            <span class="location-distance"> {{(locationData.distance/1000).toFixed(2) }}公里</span>
+                            <span class="location-adr">{{ locationData.location }}</span>
                         </p>
                     </div>
-                    <div class="location-path">
+                    <div class="location-path" @click="handleShowSheet(locationData,$event)">
                         <SvgComponent icon="daohang" />
                         导航
                     </div>
@@ -35,7 +35,7 @@
                 <p v-else>附近未找到合作停车场，您可以尝试搜索其他停车场</p>
             </div>
             <div class="location-list" :class="{ active:active }">
-                <div class="location-item flex" v-for="(item,index) in dataList">
+                <div class="location-item flex" @click="handleSelectParking(item)" v-for="(item,index) in dataList">
                     <div class="location-txt">
                         <p class="flex">
                             <van-tag v-if="index == 0">最近</van-tag>
@@ -44,17 +44,25 @@
                             <van-tag type="success" v-show="item.haveEquity">金</van-tag>
                         </p>
                         <p class="flex">
-                            <span class="location-distance"> {{(dataList[0].distance/1000).toFixed(2) }}公里</span>
+                            <span class="location-distance"> {{(item.distance/1000).toFixed(2) }}公里</span>
                             <span class="location-adr">{{ item.location }}</span>
                         </p>
                     </div>
-                    <div class="location-path">
+                    <div class="location-path" @click="handleShowSheet(item,$event)">
                         <SvgComponent icon="daohang" />
                         导航
                     </div>
                 </div>
             </div>
         </div>
+        <van-action-sheet
+                class="sheet-popover"
+                v-model="sheet.show"
+                :actions="sheet.data"
+                cancel-text="取消"
+                @cancel="sheet.show = false"
+                @select="handleSelect"
+        />
     </div>
 </template>
 
@@ -68,9 +76,20 @@
             return {
                 active:false,
                 mapInstance:null,
+                mapIcon:null,
+                flag:true,
+                locationData:'',
                 dataList: [],
-                longitude:'120.76',
-                latitude:'31.28'
+                longitude:120.735161,
+                latitude:31.258961,
+                sheet:{
+                    show:false,
+                    temp:'',
+                    url:[],
+                    data:[
+                        {name:"腾讯地图"},{name:"高德地图"},{name:"百度地图"}
+                    ]
+                }
             }
         },
         components: {
@@ -81,18 +100,40 @@
             init() {
                 this.mapInstance = new qq.maps.Map(document.getElementById("parking-wrapper"), {
                     // 地图的中心地理坐标。
-                    center: new qq.maps.LatLng(this.latitude, this.longitude),
-                    zoom: 13,
+                    center: new qq.maps.LatLng((this.latitude - 0.005), this.longitude),
+                    zoom: 15,
                     scaleControl: false,
                     zoomControl: false,
                     panControl: false,
                     mapTypeControl:false
                 });
+                //初始化marker 地图标注图标
+                let anchor = new qq.maps.Point(20, 22),
+                size = new qq.maps.Size(97, 97),
+                origin = new qq.maps.Point(0, 0),
+                scaleSize = new qq.maps.Size(40 , 45);
+                this.mapIcon = new qq.maps.MarkerImage('/images/point.png', size, origin, anchor,scaleSize);
+                new qq.maps.Marker({
+                    icon: new qq.maps.MarkerImage('https://mapapi.qq.com/web/lbs/javascriptV2/demo/img/center.gif', size, origin, anchor),
+                    map: this.mapInstance,
+                    position:new qq.maps.LatLng((this.latitude), this.longitude),
+                });
                 this.list();
             },
+
+            handleSelectParking({ latitude,longitude }){
+                this.flag = true;
+                console.log(arguments)
+                this.locationData = arguments[0];
+                this.mapMoveTo({ latitude,longitude })
+            },
             wxGetLocation(){
+                // this.mapMoveTo({
+                //     longitude:120.735161,
+                //     latitude:31.258961
+                // });
                 wx.getLocation({
-                    type: 'wgs84', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+                    type: 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
                     success:  (data) => {
                         this.latitude = data.latitude; // 纬度，浮点数，范围为90 ~ -90
                         this.longitude = data.longitude; // 经度，浮点数，范围为180 ~ -180。
@@ -100,11 +141,31 @@
                     }
                 });
             },
-            mapMoveTo({ latitude,longitude }){
-                this.mapInstance.panTo(new qq.maps.LatLng(latitude, longitude));
-            },
-            handleRelocation(){ //定位
+            mapRelocation(){ //定位
+                console.log(1234)
                 this.wxGetLocation();
+            },
+            mapMoveTo({ latitude,longitude }){
+                this.mapInstance.panTo(new qq.maps.LatLng(latitude - 0.005, longitude));
+            },
+            mapMarker(latlng,item){
+                let marker = new qq.maps.Marker({
+                    icon: this.mapIcon,
+                    map: this.mapInstance,
+                    position:latlng
+                });
+                qq.maps.event.addListener(marker, 'click', () => {
+                    console.log(item);
+                    this.flag = false;
+                    this.locationData = item;
+                });
+            },
+            mapBaiduTranslateQQ({ latitude,longitude }){
+                return new Promise((resolve, reject) => {
+                    qq.maps.convertor.translate(new qq.maps.LatLng(latitude,longitude), 3, data => {
+                        resolve(data[0])
+                    })
+                })
             },
             handleSearch(){
                 this.$router.push({
@@ -119,27 +180,74 @@
                 if(!!!this.dataList.length) return;
                 this.active = !this.active
             },
-            list(page,pageSize = 8){
+            async list(page,pageSize = 8){
                 let _data ={
                     key:'',
                     longitude:this.longitude,
                     latitude:this.latitude,
                     page,pageSize
                 }
-                parkingList(_data).then(data => {
+                try {
+                    let data = await parkingList(_data)
                     this.dataList = data.data;
-                }).catch(err => {})
+                    this.locationData = this.dataList[0]
+                    console.log(data.data)
+                    data.data.map( async item => {
+                        let location = await this.mapBaiduTranslateQQ({
+                            latitude:item.latitude,
+                            longitude:item.longitude
+                        })
+                        console.log(location)
+                        this.mapMarker(location,item)
+                        item.latitude = location.lat
+                        item.longitude=location.lng
+                        return item;
+                    })
+                }catch(e){
+
+                }
+            },
+            initUrl({ longitude,latitude,location }){
+                let u = navigator.userAgent, app = navigator.appVersion;
+                let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //g
+                if (isAndroid) {
+                    // 百度地图uri api
+                    this.sheet.url[0] = "bdapp://map/navi?location=" + latitude + "," + longitude + "&query=" + location;
+                    // 高德地图uri api
+                    this.sheet.url[1] = "androidamap://navi?sourceApplication=xlwx&poiname=" + location + "&latitude=" + latitude + "&lon=" + longitude + "&dev=1&style=2";
+                    // 腾讯地图uri api
+                    this.sheet.url[2] = "qqmap://map/marker?marker=coord:" + latitude + "," + longitude + ";title:" + location + "&referer=xlwx";
+                } else {
+                    // 百度地图uri api
+                    this.sheet.url[0] = "baidumap://map/navi?location=" + latitude + "," + longitude + "&query="+ location;
+                    // 高德地图uri api
+                    this.sheet.url[1] = "iosamap://navi?sourceApplication=xlwx&poiname=" + location + "&lat=" + latitude + "&lon=" + longitude + "&dev=1&style=2";
+                    // 腾讯地图uri api
+                    this.sheet.url[2] = "qqmap://map/marker?marker=coord:" + latitude + "," + longitude + ";title:" + location + "&referer=xlwx";
+                }
+            },
+            handleShowSheet({ latitude,longitude,location },e) {
+                e.stopPropagation();
+                e.preventDefault();
+                this.sheet.show = true;
+                this.sheet.temp = row;
+                this.initUrl({
+                    latitude,longitude,location
+                })
+            },
+            handleSelect(action,index){
+                window.location.href = this.sheet.url[index]
             }
         },
         computed: {},
         mounted(){
-
+            // this.init();
         },
         created() {
             wx.ready(()=>{
                 //这里调用api
                 wx.getLocation({
-                    type: 'wgs84', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+                    type: 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
                     success:  (data) => {
                         this.latitude = data.latitude; // 纬度，浮点数，范围为90 ~ -90
                         this.longitude = data.longitude; // 经度，浮点数，范围为180 ~ -180。
@@ -255,6 +363,7 @@
                         overflow: hidden;
                         text-overflow: ellipsis;
                         margin-right: 12px;
+                        white-space: nowrap;
                     }
                     .location-adr{
                         max-width: 46%;
