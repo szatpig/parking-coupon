@@ -123,7 +123,6 @@
 
             handleSelectParking({ latitude,longitude }){
                 this.flag = true;
-                console.log(arguments)
                 this.locationData = arguments[0];
                 this.mapMoveTo({ latitude,longitude })
             },
@@ -142,7 +141,6 @@
                 });
             },
             mapRelocation(){ //定位
-                console.log(1234)
                 this.wxGetLocation();
             },
             mapMoveTo({ latitude,longitude }){
@@ -155,7 +153,6 @@
                     position:latlng
                 });
                 qq.maps.event.addListener(marker, 'click', () => {
-                    console.log(item);
                     this.flag = false;
                     this.locationData = item;
                 });
@@ -191,13 +188,11 @@
                     let data = await parkingList(_data)
                     this.dataList = data.data;
                     this.locationData = this.dataList[0]
-                    console.log(data.data)
                     data.data.map( async item => {
                         let location = await this.mapBaiduTranslateQQ({
                             latitude:item.latitude,
                             longitude:item.longitude
                         })
-                        console.log(location)
                         this.mapMarker(location,item)
                         item.latitude = location.lat
                         item.longitude=location.lng
