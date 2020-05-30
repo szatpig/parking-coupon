@@ -8,9 +8,10 @@
                 :class="{ filter:tabName != 1 }"
                 v-model="loading"
                 :finished="finished"
-                finished-text="没有停车券"
+                offset="50"
+                finished-text="没有更多停车券了"
                 @load="onLoad">
-            <van-cell v-for="item in dataList" :key="item" :title="item" :class="{ used:tabName==2,expired:tabName==3 }">
+            <van-cell v-for="item in dataList" :key="item.id" :class="{ used:tabName==2,expired:tabName==3 }">
                 <template #title>
                     <div class="cell-top flex">
                         <div class="flex">
@@ -33,27 +34,27 @@
             </van-cell>
         </van-list>
         <van-popup class="popup-container" v-model="picker.show" position="right" >
-            <div class="popup-equity">
+            <div class="popup-equity" v-if="this.picker.data && this.picker.data.id">
                 <div class="popup-title">
-                    <p>{{ picker.data.parkingName }}</p>
-                    <p>–{{ picker.data.realAmount }}</p>
+                    <p>{{ this.picker.data.parkingName }}</p>
+                    <p>– {{ this.picker.data.realAmount.toFixed(2) }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>
                         <van-col span="7">车牌号码</van-col>
-                        <van-col span="17">{{ picker.data.parkingName }}</van-col>
+                        <van-col span="17">{{ this.picker.data.plateNo }}<i>{{ this.picker.columns[picker.data.plateColor] }}</i></van-col>
                         <van-col span="7">停车券码</van-col>
-                        <van-col span="17">{{ picker.data.couponNo }}</van-col>
+                        <van-col span="17">{{ this.picker.data.couponNo }}</van-col>
                         <van-col span="7">停车日期</van-col>
-                        <van-col span="17">{{ picker.data.entranceTime + ' 至 '+picker.data.exportTime }}</van-col>
+                        <van-col span="17">{{ this.picker.data.entranceTime + ' -- '+ this.picker.data.exportTime }}</van-col>
                         <van-col span="7">停车时长</van-col>
-                        <van-col span="17">{{ picker.data.parkingTime }}</van-col>
+                        <van-col span="17">{{ this.picker.data.parkingTime }}</van-col>
                         <van-col span="7">停车费用</van-col>
-                        <van-col span="17">￥{{ picker.data.parkingAmount }}</van-col>
+                        <van-col span="17">￥{{ this.picker.data.parkingAmount }}</van-col>
                         <van-col span="7">停车券抵扣</van-col>
-                        <van-col span="17">￥{{ picker.data.verifyAmount }}</van-col>
+                        <van-col span="17">￥{{ this.picker.data.verifyAmount }}</van-col>
                         <van-col span="7">实际支付</van-col>
-                        <van-col span="17">￥{{ picker.data.realAmount }}</van-col>
+                        <van-col span="17">￥{{ this.picker.data.realAmount }}</van-col>
                     </van-row>
                 </div>
             </div>
@@ -87,7 +88,7 @@
                     columns:['蓝色','黄色','黑色','白色','渐变绿色','黄绿双拼色','蓝白渐变色'],
                     data:''
                 },
-                pageIndex:0,
+                pageIndex:1,
                 dataList: [],
                 refreshing:false,
                 loading: false,
@@ -98,6 +99,7 @@
         methods: {
             handleTab(){
                 this.refreshing = true;
+                // this.finished = false;
                 this.onLoad();
             },
             handlePicker(customerCouponId){
@@ -105,32 +107,39 @@
                     customerCouponId
                 }
                 couponUseRecord(_data).then(data => {
-                    this.picker.data = data.data
-                    this.picker.show = true;
+                    this.picker.data = data.data;
+                    if(data.data.id){
+                        this.picker.show = true;
+                        this.$router.push({
+                            query:{
+                                type:customerCouponId
+                            }
+                        });
+                    }
                 })
             },
             onLoad() {
                 if (this.refreshing) {
                     this.dataList = [];
                     this.refreshing = false;
-                    this.pageIndex = 0
+                    this.pageIndex = 1
                 }
                 this.list(this.pageIndex)
             },
-            list(page,pageSize = 8){
+            list(pageNum,pageSize = 8){
                 let _data ={
                     couponStatus:this.tabName,
-                    page,
+                    pageNum,
                     pageSize
                 }
                 couponList(_data).then(data => {
                     this.pageIndex ++;
-                    console.log(data)
-                    // this.dataList = [...this.dataList,...data.data.list];
-                    this.dataList = [...this.dataList,...data.data];
-                    // if(this.dataList.length >= data.data.count){
+                    this.dataList = [...this.dataList,...data.data.list];
+                    if(this.dataList.length >= data.data.total){
                         this.finished = true;
-                    // }
+                    }else{
+                        this.finished = false;
+                    }
                     this.error = false;
                     this.loading = false;
                 }).catch(err => {
@@ -140,8 +149,31 @@
                 })
             }
         },
+        watch: {
+            '$route' (to, from) {
+                console.log(to)
+                // 对路由变化作出响应...
+                if(to.query.type){
+                    this.picker.show = true;
+                }else{
+                    this.picker.show = false;
+                }
+            }
+        },
         computed: {},
         created() {
+            let { type } = this.$route.query;
+            if(type){
+                if(this.picker.data){
+                    this.picker.show = true;
+                }else{
+                    this.picker.data = ''
+                    this.$router.replace('/home/user/coupons')
+                }
+            }else{
+                this.picker.data = ''
+                this.picker.show = false;
+            }
         }
     }
 </script>
@@ -238,6 +270,7 @@
                             font-size: 32px;
                             font-weight: bold;
                             padding-right: 32px;
+                            min-width: 140px;
                             i{
                                 margin-left: 4px;
                                 font-size: 48px;
@@ -291,6 +324,40 @@
                         margin-top: 12px;
                     }
                 }
+            }
+        }
+    }
+    .popup-equity{
+        background-color: #fff;
+        padding: 40px 48px;
+        .popup-title{
+            padding-bottom: 40px;
+            text-align: center;
+            border-bottom: 1px solid #DDDEE1;
+            p{
+                font-size: 28px;
+                color: #293547;
+                &:last-child{
+                    margin-top: 24px;
+                    font-size: 56px;
+                    color: #000000;
+                }
+            }
+        }
+        .popup-content{
+            padding: 40px 32px 0;
+            .van-col{
+                line-height: 60px;
+                font-size: 28px;
+                color: #293547;
+            }
+            .van-col--7{
+                color: #909499;
+            }
+            i{
+                margin-left: 16px;
+                font-size: 22px;
+                color: #909499;
             }
         }
     }

@@ -11,11 +11,12 @@
                 class="equity-list"
                 v-model="loading"
                 :finished="finished"
+                offset="50"
                 finished-text="没有更多了"
                 @load="onLoad">
             <van-cell v-for="item in dataList"
                       :key="item.id"
-                      :value="search.tabName==0 ? (' + ' +item.equityBalance.toFixed(2)):(' - ' +item.changeAmount.toFixed(2))"
+                      :value="search.tabName==0 ? (' + ' +item.equityBalance.toFixed(2)):(' - ' + item.changeAmount.toFixed(2))"
                       is-link
                       @click="handleShow(item)">
                 <template #title>
@@ -24,7 +25,7 @@
                         <p>{{ item.expirationTime }} 到期</p>
                     </div>
                     <div class="expenditure" v-else>
-                        <p>{{ item.parkingName }}</p>
+                        <p>{{ item.parkingName || '--' }}</p>
                         <p>{{ item.changeTime }}</p>
                         <p>{{ typeList[item.changeType] }}</p>
                     </div>
@@ -32,31 +33,27 @@
             </van-cell>
         </van-list>
         <van-popup class="popup-container" v-model="popup.show" position="right" >
-            <div class="popup-equity">
-                   <div class="popup-title">
-                       <p>苏州工业大学纳姆科技园停车场</p>
-                       <p>–15.00</p>
-                   </div>
-                   <div class="popup-content">
-                       <van-row>
-                           <van-col span="7">车牌号码</van-col>
-                           <van-col span="17">苏E98GH6</van-col>
-                           <van-col span="7">停车券码</van-col>
-                           <van-col span="17">877661ge267765abf222</van-col>
-                           <van-col span="7">停车日期</van-col>
-                           <van-col span="17">2020–02–24 12:22:34 至 2020–02–24 16:54:24</van-col>
-                           <van-col span="7">停车时长</van-col>
-                           <van-col span="17">3小时18分40秒</van-col>
-                           <van-col span="7">停车费用</van-col>
-                           <van-col span="17">￥20</van-col>
-                           <van-col span="7">停车券抵扣</van-col>
-                           <van-col span="17">￥5</van-col>
-                           <van-col span="7">实际支付</van-col>
-                           <van-col span="17">￥15</van-col>
-                       </van-row>
-                   </div>
-               </div>
-            <div class="popup-equity">
+            <div class="popup-equity" v-if="$route.query.type == 2">
+                <div class="popup-title">
+                    <p>{{ this.popup.data.parkingNames || '--' }}</p>
+                    <p>+{{ this.popup.data.equityAmount.toFixed(2) }}</p>
+                </div>
+                <div class="popup-content">
+                    <van-row>
+                        <van-col span="7">车牌号码</van-col>
+                        <van-col span="17">{{ this.popup.data.plateNo }}<i>{{ this.picker.columns[this.popup.data.plateColor] }}</i></van-col>
+                        <van-col span="7">权益金券码</van-col>
+                        <van-col span="17">{{ this.popup.data.couponNo }}</van-col>
+                        <van-col span="7">收入时间</van-col>
+                        <van-col span="17">{{ this.popup.data.equityGrantTime }}</van-col>
+                        <van-col span="7">截止时间</van-col>
+                        <van-col span="17">{{ this.popup.data.expirationTime }}</van-col>
+                        <van-col span="7">可用停车场</van-col>
+                        <van-col span="17">{{ this.popup.data.parkingNames || '--' }}</van-col>
+                    </van-row>
+                </div>
+            </div>
+            <div class="popup-equity" v-else-if ="$route.query.type == 4">
                 <div class="popup-title">
                     <p>过期作废</p>
                     <p>–150.00</p>
@@ -64,87 +61,66 @@
                 <div class="popup-content">
                     <van-row>
                         <van-col span="7">车牌号码</van-col>
-                        <van-col span="17">苏E98GH6</van-col>
+                        <van-col span="17">{{ this.popup.data.plateNo }}<i>{{ this.picker.columns[this.popup.data.plateColor] }}</i></van-col>
                         <van-col span="7">所属行业</van-col>
-                        <van-col span="17">工商银行苏州分行</van-col>
+                        <van-col span="17">{{ this.popup.data.industryUser }}</van-col>
                         <van-col span="7">权益金券码</van-col>
-                        <van-col span="17">877661ge267765abf222</van-col>
+                        <van-col span="17">{{ this.popup.data.couponNo }}</van-col>
                         <van-col span="7">过期时间</van-col>
-                        <van-col span="17">2020–02–24 12:22:34</van-col>
+                        <van-col span="17">{{ this.popup.data.changeTime }}</van-col>
                         <van-col span="7">券码余额</van-col>
-                        <van-col span="17">￥0.00</van-col>
+                        <van-col span="17">￥{{ this.popup.data.equityBalance }}</van-col>
                     </van-row>
                 </div>
             </div>
-            <div class="popup-equity">
+            <div class="popup-equity" v-else-if ="$route.query.type == 8">
                 <div class="popup-title">
                     <p>撤销收回</p>
-                    <p>–150.00</p>
+                    <p>–{{ this.popup.data.parkingAmount.toFixed(2) }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>
                         <van-col span="7">车牌号码</van-col>
-                        <van-col span="17">苏E98GH6</van-col>
+                        <van-col span="17">{{ this.popup.data.plateNo }}<i>{{ this.picker.columns[this.popup.data.plateColor] }}</i></van-col>
                         <van-col span="7">所属行业</van-col>
-                        <van-col span="17">工商银行苏州分行</van-col>
+                        <van-col span="17">{{ this.popup.data.industryUser }}</van-col>
                         <van-col span="7">权益金券码</van-col>
-                        <van-col span="17">877661ge267765abf222</van-col>
+                        <van-col span="17">{{ this.popup.data.couponNo }}</van-col>
                         <van-col span="7">撤销时间</van-col>
-                        <van-col span="17">2020–02–24 12:22:34</van-col>
+                        <van-col span="17">{{ this.popup.data.changeTime }}</van-col>
                         <van-col span="7">券码余额</van-col>
-                        <van-col span="17">￥0.00</van-col>
+                        <van-col span="17">￥{{ this.popup.data.equityBalance }}</van-col>
                     </van-row>
                 </div>
             </div>
-            <div class="popup-equity">
+            <div class="popup-equity" v-else-if ="$route.query.type == 6">
                 <div class="popup-title">
-                    <p>工商银行苏州分行</p>
-                    <p>+1520.00</p>
+                    <p>{{ this.popup.data.parkingNames }}</p>
+                    <p>-{{ this.popup.data.realAmount.toFixed(2) }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>
                         <van-col span="7">车牌号码</van-col>
-                        <van-col span="17">苏E98GH6<i>蓝牌</i></van-col>
-                        <van-col span="7">权益金券码</van-col>
-                        <van-col span="17">877661ge267765abf222</van-col>
-                        <van-col span="7">收入时间</van-col>
-                        <van-col span="17">2020–02–24 12:22:34</van-col>
-                        <van-col span="7">截止时间</van-col>
-                        <van-col span="17">2020–02–24 16:54:24</van-col>
-                        <van-col span="7">可用停车场</van-col>
-                        <van-col span="17">苏州工业园区纳米大学产业园停车场、苏州生命之源停车场、苏州湾停车场，苏州中心停车场，苏州园区地园区、苏州北站停车场</van-col>
-                    </van-row>
-                </div>
-            </div>
-            <div class="popup-equity">
-                <div class="popup-title">
-                    <p>苏州工业大学纳姆科技园停车场</p>
-                    <p>-150.00</p>
-                </div>
-                <div class="popup-content">
-                    <van-row>
-                        <van-col span="7">车牌号码</van-col>
-                        <van-col span="17">苏E98GH6 <i>蓝牌</i></van-col>
+                        <van-col span="17">{{ this.popup.data.plateNo }}<i>{{ this.picker.columns[this.popup.data.plateColor] }}</i></van-col>
                         <van-col span="7">所属行业</van-col>
-                        <van-col span="17">工商银行苏州分行</van-col>
+                        <van-col span="17">{{ this.popup.data.industryUser }}</van-col>
                         <van-col span="7">权益金券码</van-col>
-                        <van-col span="17">877661ge267765abf222</van-col>
+                        <van-col span="17">{{ this.popup.data.couponNo }}</van-col>
                         <van-col span="7">停车日期</van-col>
-                        <van-col span="17">2020–02–24 12:22:34 至 2020–02–24 16:54:24</van-col>
+                        <van-col span="17">{{ this.popup.data.entranceTime }} -- {{ this.popup.data.exportTime }}</van-col>
                         <van-col span="7">停车时长</van-col>
-                        <van-col span="17">3小时18分40秒</van-col>
+                        <van-col span="17">{{ this.popup.data.parkingTime }}</van-col>
                         <van-col span="7">停车费用</van-col>
-                        <van-col span="17">￥20</van-col>
+                        <van-col span="17">￥{{ this.popup.data.parkingAmount }}</van-col>
                         <van-col span="7">权益金抵扣</van-col>
-                        <van-col span="17">￥5</van-col>
+                        <van-col span="17">￥{{ this.popup.data.verifyAmount }}</van-col>
                         <van-col span="7">实际支付</van-col>
-                        <van-col span="17">￥15</van-col>
+                        <van-col span="17">￥{{ this.popup.data.realAmount }}</van-col>
                         <van-col span="7">券码余额</van-col>
-                        <van-col span="17">￥15</van-col>
+                        <van-col span="17">￥{{ this.popup.data.equityBalance }}</van-col>
                     </van-row>
                 </div>
             </div>
-
         </van-popup>
         <van-popup class="popup-picker-container" v-model="picker.show" position="bottom">
             <van-picker
@@ -159,7 +135,8 @@
 </template>
 
 <script>
-    import { customerCarsAndEquity, payList, payDetail, incomeList, incomeDetail } from '@/api/coupons-api'
+    import { payList, payDetail, incomeList, incomeDetail } from '@/api/coupons-api'
+    import { customerCarList } from '@/api/user-api'
     export default {
         name: "equity",
         data() {
@@ -190,7 +167,7 @@
                     6:'车主使用权益金',
                     8:'撤销权益金;'
                 },
-                pageIndex:0,
+                pageIndex:1,
                 dataList: [],
                 refreshing:false,
                 loading: true,
@@ -205,16 +182,22 @@
         methods: {
             async handleShow(item){
                 let data = '';
-                if(this.search.tabName){
-                    data = await payDetail({ changeLogId:item.id })
-                }else{
-                    data = await incomeDetail({ changeLogId:item.id })
-                }
-                this.$router.push({
-                    query:{
-                        type:item
+                try {
+                    if(this.search.tabName){
+                        data = await payDetail({ changeLogId:item.id })
+                    }else{
+                        data = await incomeDetail({ equityId:item.id })
                     }
-                });
+                    this.popup.data = data.data;
+                    this.$router.push({
+                        query:{
+                            type: this.search.tabName ? item.changeType : 2
+                        }
+                    });
+                }catch (e) {
+
+                }
+
             },
             handleTab(name){
                 this.refreshing = true;
@@ -234,42 +217,39 @@
                 this.onLoad()
             },
             async onLoad() {
-                // 异步更新数据
-                // setTimeout 仅做示例，真实场景中一般为 ajax 请求
                 if (this.refreshing) {
                     this.dataList = [];
                     this.refreshing = false;
-                    this.pageIndex = 0
+                    this.pageIndex = 1
                 }
                 this.list(this.pageIndex)
             },
-
-            async list(page,pageSize = 8){
+            async list(pageNum,pageSize = 8){
                 let _data ={
                     plateNo:this.search.plateNo,
                     plateColor:this.search.plateColor,
-                    page,
+                    pageNum,
                     pageSize
                 }
-                let data = []
+                let data = [],total = 0
 
                 try {
                     if(this.search.tabName){
                         data = await payList(_data)
-                        this.dataList = [...this.dataList,...data.data];
-
+                        this.dataList = [...this.dataList,...data.data.list];
+                        total = data.data.total;
                     }else{
                         data = await incomeList(_data)
                         this.picker.income = data.data.equityBalanceSum
-                        this.dataList = [...this.dataList,...data.data.ownerEquityIncomeVOS];
+                        this.dataList = [...this.dataList,...data.data.pageInfo.list];
+                        total = data.data.pageInfo.total;
                     }
-                    this.pageIndex ++;
-
-                    // this.dataList = [...this.dataList,...data.data.list];
-
-                    // if(this.dataList.length >= data.data.count){
-                    this.finished = true;
-                    // }
+                    this.pageIndex ++ ;
+                    if(this.dataList.length >= total){
+                        this.finished = true;
+                    }else{
+                        this.finished = false;
+                    }
                     this.error = false;
                     this.loading = false;
                 }catch (e) {
@@ -280,14 +260,12 @@
                 }
             },
             init(){
-                let _data ={
-
-                }
-                customerCarsAndEquity(_data).then(data => {
-                    this.picker.carList = data.data.customerCars.map(item => ({
+                customerCarList().then(data => {
+                    console.log(data.data)
+                    this.picker.carList = data.data.map(item => ({
                         text:item.plateNo,
-                        value:item.customerId,
-                        color:0
+                        value:item.id,
+                        color:item.plateColor
                     }));
                     this.search.plateNo = this.picker.carList[0].text;
                     this.search.plateColor = this.picker.carList[0].color;
@@ -310,8 +288,14 @@
         created() {
             let { type } = this.$route.query;
             if(type){
-                this.popup.show = true;
+                if(this.popup.data){
+                    this.popup.show = true;
+                }else{
+                    this.popup.data = ''
+                    this.$router.replace('/home/user/equity')
+                }
             }else{
+                this.popup.data = ''
                 this.popup.show = false;
             }
             this.init();

@@ -8,42 +8,58 @@
                 <van-field
                     label="手机号"
                     maxlength="11"
-                    type="tel"
+                    type="number"
                     v-model.trim="user.phone"
                     placeholder="请输入您的手机号"
                     @input="handlePhoneChange"
                     @blur="handelPageAdjust" />
                 <van-field
+                        v-if="loginType"
                     label="密码"
                     v-model.trim="user.password"
                     maxlength="12"
-                    type="tel"
                     placeholder="请输入密码"
                     @input="handleCodeChange"
                     @blur="handelPageAdjust">
                 </van-field>
-                <router-link class="register-link" to="/register">忘记密码？</router-link>
+                <van-field
+                        v-else
+                        label="验证码"
+                        v-model.trim="user.code"
+                        maxlength="6"
+                        type="tel"
+                        placeholder="请输入验证码"
+                        @input="handleCodeChange"
+                        @blur="handelPageAdjust">
+                    <ynt-code slot="button" @handleSend="handleSend" :disabled="disabled" ref="timer" :second="second"></ynt-code>
+                </van-field>
                 <van-button
                     :disabled="!(checked && user.phone && user.password && user.phone.length == 11)"
                     class="login-submit"
                     size="large"
                     round
                     @click="handleLogin">登录</van-button>
+                <p class="flex">
+                    <span class="register-link" @click="loginType = !loginType">{{ loginType ?  '使用验证码登录' : '使用密码登录'}}</span>
+                    <router-link class="register-link" to="/register">新用户注册</router-link>
+                </p>
             </van-cell-group>
         </div>
     </div>
 </template>
 
 <script>
-    import { userLogin,sendSms } from '@/api/auth-api'
+    import { userLogin, userCodeLogin, sendSms } from '@/api/auth-api'
     import { mapActions } from  'vuex'
     import YntCode from '@/components/YntCode'
     export default {
         name: "login",
         data() {
             return {
+                loginType:true,
                 user:{
                     phone:'',
+                    code:'',
                     password:'',
                     openId:''
                 },
@@ -66,7 +82,7 @@
 
             },
             handleCodeChange(val){
-                this.user.password = val.replace(/[\s]/g,'');
+                this.user.password = this.user.code = val.replace(/[\s]/g,'');
             },
             handleSend(){
                 let reg = /^1[3456789]\d{9}$/;
@@ -89,29 +105,53 @@
                     },200);
                 })
             },
-            handleLogin(){
+            async handleLogin(){
                 let reg = /^1[3456789]\d{9}$/;
+
                 if(!reg.test(this.user.phone) || this.user.phone.length != 11){
                     this.$toast({
                         message: '请输入11位合法手机号',
                     });
                     return false;
                 }
-                if(!this.user.password){
-                    this.$toast({
-                        message: '验证码不能为空 >_<',
-                    });
-                    return false;
+                if(this.loginType){
+                    if(!this.user.password){
+                        this.$toast({
+                            message: '密码不能为空 >_<',
+                        });
+                        return false;
+                    }
+                }else{
+                    if(!this.user.code){
+                        this.$toast({
+                            message: '验证码不能为空 >_<',
+                        });
+                        return false;
+                    }
                 }
+
                 this.user.openId = this.$route.query.openId;
                 this.$route.query.openId &&(sessionStorage.setItem('openId',this.$route.query.openId));
-                userLogin(this.user).then((data) => {
+
+                let { phone,code,password,openId } =  this.user,data;
+                try {
+                    if(this.loginType){
+                        data = await userLogin({
+                            phone,password,openId
+                        })
+                    }else{
+                        data = await userCodeLogin({
+                            phone,code,openId
+                        })
+                    }
                     this.setUserInfo(data.data);
                     this.setUserToken(data.data.token);
                     this.$router.replace({
                         path:'/home/user'
                     });
-                })
+                }catch (e) {
+
+                }
             },
 
             //ios12 页面回弹底部空白 bug
@@ -232,6 +272,28 @@
                     display: inline-block;
                     a{
                         color: @primary-color;
+                    }
+                }
+            }
+            .flex{
+                justify-content: center;
+                .register-link{
+                    flex: 1;
+                    padding: 0 70px;
+                    text-align: center;
+                    position: relative;
+                    color: #909499;
+                    font-size: 28px;
+                    &:first-child:before{
+                        content: '';
+                        display: block;
+                        position: absolute;
+                        top:45%;
+                        right: 0;
+                        width: 2px;
+                        height: 28px;
+                        transform: translateY(-50%);
+                        background-color: #dddeee;
                     }
                 }
             }

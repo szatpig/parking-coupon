@@ -7,7 +7,7 @@ export const userLogin = (data)=> fetch(api.api + '/loginByPassword',{
     data
 });
 //验证码登录
-export const userLoginByCode= (data)=> fetch(api.api + '/loginByCode',{
+export const userCodeLogin= (data)=> fetch(api.api + '/loginByCode',{
     data
 });
 //验证码登录
