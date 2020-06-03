@@ -50,6 +50,7 @@
 
 <script>
     import { customerCarCouponList, receiveCoupons } from '@/api/user-api'
+    import WxMixin from '@/mixins/wxMixin'
     export default {
         name: "coupon",
         data() {
@@ -62,6 +63,7 @@
             }
         },
         components: {},
+        mixins:[WxMixin],
         methods: {
             handleGet({ id, plateNo ,plateColor }){
                 receiveCoupons({

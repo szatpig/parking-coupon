@@ -1,7 +1,7 @@
 <template>
     <div class="search-container">
         <div class="search-header flex">
-            <span class="search-location-txt"><i>苏州</i><van-icon name="arrow-down" /></span>
+            <span class="search-location-txt"><i>{{ this.$route.query.city }}</i><van-icon name="arrow-down" /></span>
             <van-search
                     v-model="key"
                     shape="round"
@@ -96,7 +96,8 @@
                 let _data ={
                     key:this.key,
                     longitude,
-                    latitude
+                    latitude,
+                    cityName:this.$route.query.city
                 }
                 parkingList(_data).then(data => {
                     this.pageIndex ++;
@@ -129,14 +130,17 @@
                     this.sheet.url[2] = "qqmap://map/marker?marker=coord:" + latitude + "," + longitude + ";title:" + location + "&referer=xlwx";
                 }
             },
-            handleShowSheet({ latitude,longitude,location },e) {
+            handleShowSheet({ latitude,longitude,parkingName,location },e) {
                 e.stopPropagation();
                 e.preventDefault();
-                this.sheet.show = true;
-                this.sheet.temp = row;
-                this.initUrl({
-                    latitude,longitude,location
-                })
+                wx.openLocation({
+                    latitude: latitude, // 纬度，浮点数，范围为90 ~ -90
+                    longitude: longitude, // 经度，浮点数，范围为180 ~ -180。
+                    name: parkingName, // 位置名
+                    address: location, // 地址详情说明
+                    scale: 16, // 地图缩放级别,整形值,范围从1~28。默认为最大
+                    infoUrl: '' // 在查看位置界面底部显示的超链接,可点击跳转
+                });
             },
             handleSelect(action,index){
                 location.href = this.sheet.url[index]
@@ -194,7 +198,7 @@
                 &:first-child{
                     .location-txt{
                         .location-name{
-                            width: 65%;
+                            max-width: 65%;
                         }
                     }
                 }
@@ -218,7 +222,7 @@
                         white-space: nowrap;
                     }
                     .location-name{
-                        width: 78%;
+                        max-width: 78%;
                         overflow: hidden;
                         text-overflow: ellipsis;
                         margin-right: 12px;

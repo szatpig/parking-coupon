@@ -41,7 +41,7 @@
                     @click="handleLogin">登录</van-button>
                 <p class="flex">
                     <span class="register-link" @click="loginType = !loginType">{{ loginType ?  '使用验证码登录' : '使用密码登录'}}</span>
-                    <router-link class="register-link" to="/register">新用户注册</router-link>
+                    <router-link class="register-link" :to="'/register?openId='+$route.query.openId">新用户注册</router-link>
                 </p>
             </van-cell-group>
         </div>
@@ -129,10 +129,7 @@
                         return false;
                     }
                 }
-
                 this.user.openId = this.$route.query.openId;
-                this.$route.query.openId &&(sessionStorage.setItem('openId',this.$route.query.openId));
-
                 let { phone,code,password,openId } =  this.user,data;
                 try {
                     if(this.loginType){
@@ -169,11 +166,10 @@
         },
         created() {
             //存储初始化
-            let _openId = sessionStorage.getItem('openId');
             this.setUserInfo({});
             this.setUserToken(null);
             sessionStorage.clear();
-            _openId &&(sessionStorage.setItem('openId',_openId))
+            let _openId = this.$route.query.openId;
             _openId && this.setOpenId(_openId || '');
 
         }

@@ -15,3 +15,7 @@ export const listPlateColorType = (params)=> fetch(api.api + '/customerCar/listP
     type:'get',
     params
 });
+
+export const geocoder = (data)=> fetch(api.api + '/wechat/location',{
+    data
+});

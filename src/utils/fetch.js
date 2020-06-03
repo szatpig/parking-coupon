@@ -92,6 +92,8 @@ export default function fetch (url, options) {
         }).then(response => {
             if (response.data.status === 1000) {
                 resolve(response.data)
+            }else if(response.data.status === 0){
+                resolve(response.result)
             } else {
                 switch (response.data.status) {
                     case 1001:
@@ -108,7 +110,7 @@ export default function fetch (url, options) {
                                 router.push({
                                     path:'/login',
                                     query:{
-                                        openId:sessionStorage.getItem('openId')
+                                        openId:store.state.user.openId
                                     }
                                 })
                                 // wx.closeWindow();

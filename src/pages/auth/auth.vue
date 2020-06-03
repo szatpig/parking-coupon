@@ -42,8 +42,14 @@
                     await this.setUserToken(data.data.token);
                     this.turnTo();
                 }catch (e) {
-                    console.log(e);
                     if(e.status === 5011){
+                        this.$router.replace({
+                            path:'/register',
+                            query:{
+                                openId:this.$route.query.openId
+                            }
+                        })
+                    }else if(e.status === 5012){
                         this.$router.replace({
                             path:'/login',
                             query:{
@@ -63,11 +69,21 @@
             if(!!!this.$store.state.user.openId && !!!this.$route.query.openId){
                 // 跳转到微信授权页面
                 let _data ={
-                    url:'/wx/mp/etc/wechat/getAuthorize?url='+ location.origin + location.pathname
+                    url:'/wx/mp/etc/wechat/getAuthorize?url='+ URLencode(location.origin + location.pathname + '?redirect='+ this.$route.query.redirect)
                 }
                 // getAuthorize(_data)
-                console.log(_data.url)
-                location.href = _data.url
+                console.log(location.origin + _data.url);
+                window.location.href = location.origin + _data.url
+                // const a = document.createElement('a');
+                // a.setAttribute('href', location.origin + _data.url);
+                // a.setAttribute('id', 'startTelMedicine');
+                // // 防止反复添加
+                // if(document.getElementById('startTelMedicine')) {
+                //     document.body.removeChild(document.getElementById('startTelMedicine'));
+                // }
+                // document.body.appendChild(a);
+                // a.click();
+
             }else{// 如果有token 但是vuex中没有用户登录信息则做登录操作
                 this.handleOpenIdLogin()
             }

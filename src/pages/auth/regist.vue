@@ -54,7 +54,7 @@
                     type="info"
                     @click="handleLogin">注册</van-button>
                 <p class="register-tips">
-                    已有账号？<router-link class="register-tips-text" to="/login">点击登录</router-link>
+                    已有账号？<router-link class="register-tips-text" :to="'/login?openId='+ $route.query.openId">点击登录</router-link>
                 </p>
             </van-cell-group>
         </div>
@@ -172,10 +172,7 @@
                     });
                     return false;
                 }
-
-                // this.user.openId = sessionStorage.getItem('openId')
                 this.user.openId = this.$route.query.openId;
-                this.$route.query.openId &&(sessionStorage.setItem('openId',this.$route.query.openId));
                 userRegister(this.user).then((data) => {
                     this.setUserInfo(data.data);
                     this.setUserToken(data.data.token);
@@ -200,11 +197,11 @@
         },
         created() {
             //存储初始化
-            let _openId = sessionStorage.getItem('openId');
             this.setUserInfo({});
             this.setUserToken(null);
             sessionStorage.clear();
-            _openId &&(sessionStorage.setItem('openId',_openId))
+            let _openId = this.$route.query.openId;
+            _openId && this.setOpenId(_openId || '');
         }
     }
 </script>

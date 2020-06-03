@@ -238,6 +238,7 @@
                 getByCustomerInfo().then(data => {
                     this.priority = data.data.priority;
                     this.equityPriority = data.data.equityPriority;
+                    this.listIndustry = data.data.list;
                     this.id = data.data.id
                 })
             },
@@ -302,13 +303,19 @@
 
             service.options( 'first', { direction: 'vertical' } )
             service.eventBus.$on('dropModel', ({ dragIndex,dropIndex }) => {
-                // let _tempList = JSON.parse(JSON.stringify(this.listIndustry))
-                // console.log('dragend: ', dragIndex,dropIndex,this.listIndustry)
-                // let _temp = _tempList[dragIndex]
-                // _tempList[dragIndex] = _tempList[dropIndex]
-                // _tempList[dropIndex] = _temp;
-                //
-                // this.listIndustry = _tempList
+                let _tempList = JSON.parse(JSON.stringify(this.listIndustry))
+                console.log('dragend: ', dragIndex,dropIndex,this.listIndustry)
+                let _temp = _tempList[dragIndex]
+                _tempList[dragIndex] = _tempList[dropIndex]
+                _tempList[dropIndex] = _temp;
+
+                this.listIndustry = [];
+                this.$nextTick(()=>{
+                    this.listIndustry = _tempList;
+                    this.setCustomer();
+                })
+
+
             })
         }
     }

@@ -70,6 +70,7 @@
     import WxMixin from '@/mixins/wxMixin'
     import SvgComponent from '@/components/svg'
     import { parkingList } from '@/api/parking-api'
+    import { geocoder } from '@/api/common-api'
     export default {
         name: "parking",
         data() {
@@ -82,6 +83,7 @@
                 dataList: [],
                 longitude:120.735161,
                 latitude:31.258961,
+                locationCity:'',
                 sheet:{
                     show:false,
                     temp:'',
@@ -97,7 +99,7 @@
         },
         mixins:[WxMixin],
         methods: {
-            init() {
+            async init() {
                 this.mapInstance = new qq.maps.Map(document.getElementById("parking-wrapper"), {
                     // 地图的中心地理坐标。
                     center: new qq.maps.LatLng((this.latitude - 0.005), this.longitude),
@@ -114,11 +116,12 @@
                 scaleSize = new qq.maps.Size(40 , 45);
                 this.mapIcon = new qq.maps.MarkerImage('/images/point.png', size, origin, anchor,scaleSize);
                 new qq.maps.Marker({
-                    icon: new qq.maps.MarkerImage('https://mapapi.qq.com/web/lbs/javascriptV2/demo/img/center.gif', size, origin, anchor),
+                    icon: new qq.maps.MarkerImage('/images/location.png', size, origin, anchor,new qq.maps.Size(60 , 60)),
                     map: this.mapInstance,
                     position:new qq.maps.LatLng((this.latitude), this.longitude),
                 });
-                this.list();
+                await this.mapGetCity();
+                await this.list();
             },
 
             handleSelectParking({ latitude,longitude }){
@@ -164,12 +167,25 @@
                     })
                 })
             },
+            async mapGetCity(){
+                let _data ={
+                    latitude:this.latitude,
+                    longitude:this.longitude
+                }
+                try {
+                    let data = await geocoder(_data)
+                    this.locationCity = data.data.message.result.address_component.city.replace(/市/,'')
+                }catch (e) {
+
+                }
+            },
             handleSearch(){
                 this.$router.push({
                     path:'/home/parking/search',
                     query:{
                         latitude:this.latitude,
-                        longitude:this.longitude
+                        longitude:this.longitude,
+                        city:this.locationCity
                     }
                 })
             },
@@ -182,6 +198,7 @@
                     key:'',
                     longitude:this.longitude,
                     latitude:this.latitude,
+                    cityName:this.locationCity,
                     page,pageSize
                 }
                 try {
@@ -202,33 +219,17 @@
 
                 }
             },
-            initUrl({ longitude,latitude,location }){
-                let u = navigator.userAgent, app = navigator.appVersion;
-                let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //g
-                if (isAndroid) {
-                    // 百度地图uri api
-                    this.sheet.url[0] = "bdapp://map/navi?location=" + latitude + "," + longitude + "&query=" + location;
-                    // 高德地图uri api
-                    this.sheet.url[1] = "androidamap://navi?sourceApplication=xlwx&poiname=" + location + "&latitude=" + latitude + "&lon=" + longitude + "&dev=1&style=2";
-                    // 腾讯地图uri api
-                    this.sheet.url[2] = "qqmap://map/marker?marker=coord:" + latitude + "," + longitude + ";title:" + location + "&referer=xlwx";
-                } else {
-                    // 百度地图uri api
-                    this.sheet.url[0] = "baidumap://map/navi?location=" + latitude + "," + longitude + "&query="+ location;
-                    // 高德地图uri api
-                    this.sheet.url[1] = "iosamap://navi?sourceApplication=xlwx&poiname=" + location + "&lat=" + latitude + "&lon=" + longitude + "&dev=1&style=2";
-                    // 腾讯地图uri api
-                    this.sheet.url[2] = "qqmap://map/marker?marker=coord:" + latitude + "," + longitude + ";title:" + location + "&referer=xlwx";
-                }
-            },
-            handleShowSheet({ latitude,longitude,location },e) {
+            handleShowSheet({ latitude,longitude,parkingName,location },e) {
                 e.stopPropagation();
                 e.preventDefault();
-                this.sheet.show = true;
-                this.sheet.temp = row;
-                this.initUrl({
-                    latitude,longitude,location
-                })
+                wx.openLocation({
+                    latitude: latitude, // 纬度，浮点数，范围为90 ~ -90
+                    longitude: longitude, // 经度，浮点数，范围为180 ~ -180。
+                    name: parkingName, // 位置名
+                    address: location, // 地址详情说明
+                    scale: 16, // 地图缩放级别,整形值,范围从1~28。默认为最大
+                    infoUrl: '' // 在查看位置界面底部显示的超链接,可点击跳转
+                });
             },
             handleSelect(action,index){
                 window.location.href = this.sheet.url[index]
@@ -236,19 +237,20 @@
         },
         computed: {},
         mounted(){
-            // this.init();
+
         },
         created() {
             wx.ready(()=>{
                 //这里调用api
-                wx.getLocation({
-                    type: 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
-                    success:  (data) => {
-                        this.latitude = data.latitude; // 纬度，浮点数，范围为90 ~ -90
-                        this.longitude = data.longitude; // 经度，浮点数，范围为180 ~ -180。
-                        this.init();
-                    }
-                });
+
+                    wx.getLocation({
+                        type: 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+                        success:  (data) => {
+                            this.latitude = data.latitude; // 纬度，浮点数，范围为90 ~ -90
+                            this.longitude = data.longitude; // 经度，浮点数，范围为180 ~ -180。
+                            this.init();
+                        }
+                    });
             });
         }
     }
@@ -336,7 +338,7 @@
                 &:first-child{
                     .location-txt{
                         .location-name{
-                            width: 65%;
+                            max-width: 65%;
                         }
                     }
                 }
@@ -354,7 +356,7 @@
 
                     }
                     .location-name{
-                        width: 78%;
+                        max-width: 78%;
                         overflow: hidden;
                         text-overflow: ellipsis;
                         margin-right: 12px;
