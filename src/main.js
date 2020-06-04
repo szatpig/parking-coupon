@@ -7,7 +7,6 @@ import { Vue2Dragula } from 'vue2-dragula'
 import 'lib-flexible'
 
 import '@/sass/app.less'
-import 'dragula/dist/dragula.css'
 import App from './App.vue'
 
 Vue.config.productionTip = false

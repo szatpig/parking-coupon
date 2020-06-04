@@ -74,15 +74,6 @@
                 // getAuthorize(_data)
                 console.log(location.origin + _data.url);
                 window.location.href = location.origin + _data.url
-                // const a = document.createElement('a');
-                // a.setAttribute('href', location.origin + _data.url);
-                // a.setAttribute('id', 'startTelMedicine');
-                // // 防止反复添加
-                // if(document.getElementById('startTelMedicine')) {
-                //     document.body.removeChild(document.getElementById('startTelMedicine'));
-                // }
-                // document.body.appendChild(a);
-                // a.click();
 
             }else{// 如果有token 但是vuex中没有用户登录信息则做登录操作
                 this.handleOpenIdLogin()

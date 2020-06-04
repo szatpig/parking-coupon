@@ -2,7 +2,6 @@
 // Created by szatpig at 2019/4/8.
 import Router from 'vue-router'
 import store from '@/vuex'
-import api from '@@/config'
 
 //webpackChunkName 一定要写，是code split 后的命名 [ChunkName].[hash].js
 const Home = () => import(/* webpackChunkName: "home" */ '@/pages/home');
@@ -53,7 +52,7 @@ const routes =[
                 component:Coupon,
                 name:'coupon',
                 meta:{
-                    title:'停车'
+                    title:'领券'
                 }
             },
             {
@@ -161,7 +160,7 @@ router.beforeEach((to, from, next) => {
     //     location.href='https://w.url.cn/s/A02CPn0';
     // }
 
-    if(ua.match(/MicroMessenger/i) !== 'micromessenger' && to.path.indexOf('author') === -1){
+    if(ua.match(/MicroMessenger/i) !== 'micromessenger' && to.path.indexOf('author') === -1 && to.path.indexOf('login') === -1 && to.path.indexOf('register') === -1){
         console.log(2)
         if (!store.state.user.openId){
             console.log(4)
@@ -185,17 +184,7 @@ router.beforeEach((to, from, next) => {
                     });
                 }
             }else{
-                console.log(5)
-                if(to.path.indexOf('login') === -1 && to.path.indexOf('register') === -1){
-                    console.log(9,to)
-                    next({
-                        path: '/author',
-                        query: { redirect: to.fullPath }
-                    });
-                }else{
-                    console.log(10)
-                    next();
-                }
+                next();
             }
         }
     }else {

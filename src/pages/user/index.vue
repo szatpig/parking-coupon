@@ -50,7 +50,6 @@
         components: {
             SvgComponent
         },
-        mixins:[WxMixin],
         methods: {
             handleCall(){
                 this.$dialog.confirm({

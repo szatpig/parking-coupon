@@ -102,7 +102,8 @@
         methods: {
             ...mapActions([
                 'setUserToken',
-                'setUserInfo'
+                'setUserInfo',
+                'setOpenId',
             ]),
             handlePhoneChange(val){
                 this.user.phoneNo = val.replace(/[^\d]/g,'');

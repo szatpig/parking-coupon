@@ -10,8 +10,7 @@
   },
   "dependencies": {
     "core-js": "^2.6.5",
-    "lib-flexible": "^0.3.2",
-    "vue2-dragula": "^2.5.4"
+    "lib-flexible": "^0.3.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.5.5",
@@ -27,6 +26,7 @@
     "svg-sprite-loader": "^4.1.6",
     "vue-cli-plugin-style-resources-loader": "^0.1.3",
     "vue-cli-plugin-vconsole": "^1.0.1",
-    "vue-template-compiler": "^2.5.21"
+    "vue-template-compiler": "^2.5.21",
+    "webpack-bundle-analyzer": "^3.8.0"
   }
 }

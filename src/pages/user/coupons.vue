@@ -23,12 +23,12 @@
                         </div>
                         <van-button v-if="tabName == 2" round size="mini" @click="handlePicker(item.id)">停车记录<van-icon name="arrow" /></van-button>
                     </div>
-                    <div class="cell-bottom flex">
-                        <div class="cell-bottom-left">
+                    <div class="cell-bottom flex" @click.stop="handleCollapse(item.id)">
+                        <div class="cell-bottom-left" :class="{ active: tempIndex == item.id }">
                             <div class="bottom-content">可用于：{{ item.parkingNames || '--' }}</div>
                             <p>券码：{{ item.couponNo }}</p>
                         </div>
-                        <van-icon name="arrow-up" />
+                        <van-icon :name=" tempIndex == item.id ? 'arrow-down' : 'arrow-up' "/>
                     </div>
                 </template>
             </van-cell>
@@ -90,6 +90,7 @@
                 },
                 pageIndex:1,
                 dataList: [],
+                tempIndex:-1,
                 refreshing:false,
                 loading: false,
                 finished: false,
@@ -101,6 +102,9 @@
                 this.refreshing = true;
                 // this.finished = false;
                 this.onLoad();
+            },
+            handleCollapse(id){
+                this.tempIndex = id
             },
             handlePicker(customerCouponId){
                 let _data ={
@@ -312,10 +316,13 @@
                     font-size: 20px;
                     color: #909499;
                     line-height: 36px;
-                    padding: 16px 0 8px;
+                    padding: 16px 0 0px;
                     .cell-bottom-left{
                         height: 30px;
                         overflow: hidden;
+                        &.active{
+                            height: auto;
+                        }
                         .bottom-content{
                             width: 646px;
                         }
@@ -324,7 +331,7 @@
                         margin-top: 6px;
                     }
                     p{
-                        margin-top: 12px;
+                        margin-top: 8px;
                     }
                 }
             }

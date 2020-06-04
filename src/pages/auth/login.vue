@@ -16,10 +16,11 @@
                 <van-field
                         v-if="loginType"
                     label="密码"
+                    type="password"
                     v-model.trim="user.password"
                     maxlength="12"
                     placeholder="请输入密码"
-                    @input="handleCodeChange"
+                    @input="handlePasswordChange"
                     @blur="handelPageAdjust">
                 </van-field>
                 <van-field
@@ -82,7 +83,10 @@
 
             },
             handleCodeChange(val){
-                this.user.password = this.user.code = val.replace(/[\s]/g,'');
+                this.user.code = val.replace(/[\s]/g,'');
+            },
+            handlePasswordChange(val){
+                this.user.password = val.replace(/[\s]/g,'');
             },
             handleSend(){
                 let reg = /^1[3456789]\d{9}$/;

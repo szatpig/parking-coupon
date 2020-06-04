@@ -97,7 +97,6 @@
         components: {
             SvgComponent
         },
-        mixins:[WxMixin],
         methods: {
             async init() {
                 this.mapInstance = new qq.maps.Map(document.getElementById("parking-wrapper"), {
@@ -240,9 +239,11 @@
 
         },
         created() {
+            console.log('beforeMount')
             wx.ready(()=>{
+                console.log('beforeMount222')
                 //这里调用api
-
+                setTimeout(()=>{
                     wx.getLocation({
                         type: 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
                         success:  (data) => {
@@ -251,6 +252,7 @@
                             this.init();
                         }
                     });
+                },300)
             });
         }
     }

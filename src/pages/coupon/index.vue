@@ -63,7 +63,6 @@
             }
         },
         components: {},
-        mixins:[WxMixin],
         methods: {
             handleGet({ id, plateNo ,plateColor }){
                 receiveCoupons({

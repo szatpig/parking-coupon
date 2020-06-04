@@ -25,9 +25,9 @@
                         <p>{{ item.expirationTime }} 到期</p>
                     </div>
                     <div class="expenditure" v-else>
-                        <p>{{ item.parkingName || '--' }}</p>
+                        <p>{{ item.changeType == 6 ? (item.parkingName || '--'):typeList[item.changeType] }}</p>
                         <p>{{ item.changeTime }}</p>
-                        <p>{{ typeList[item.changeType] }}</p>
+                        <p>{{ item.industryUser }}</p>
                     </div>
                 </template>
             </van-cell>
@@ -165,7 +165,7 @@
                 typeList:{
                     4:'权益金额到期返还',
                     6:'车主使用权益金',
-                    8:'撤销权益金;'
+                    8:'撤销权益金'
                 },
                 pageIndex:1,
                 dataList: [],

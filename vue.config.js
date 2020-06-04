@@ -11,7 +11,7 @@ const externals = {
     'vuex':'Vuex',
     'axios':'axios',
     'vant':'vant',
-    'dragula':'dragula'
+    'vue2-dragula':'vueDragula'
 }
 
 
@@ -25,6 +25,9 @@ module.exports = {
         config.externals(externals);
         config.resolve.extensions.merge(['.js', '.vue', '.json','.scss','.less']);
         config.resolve.alias.set('@@', path.resolve(__dirname,'./public'));
+        if(process.env.NODE_ENV==='production' && process.env.npm_config_report){
+            config.plugin('webpack-bundle-analyzer').use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
+        }
 
         config.module
                 .rule('svg')

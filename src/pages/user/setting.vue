@@ -9,10 +9,10 @@
             </van-cell>
             <van-cell title="优先使用日期较近的权益金">
                 <template>
-                    <van-switch :active-value="0" :inactive-value="1" v-model="equityPriority" @change="setCustomer" size="20px" />
+                    <van-switch :active-value="0" :inactive-value="1" v-model="equityPriority" @change="handleSwitch" size="20px" />
                 </template>
             </van-cell>
-            <p v-show="!!equityPriority" class="setting-tips">请拖动权益金扣款顺序</p>
+            <p v-show="!!equityPriority && listIndustry.length" class="setting-tips">请拖动权益金扣款顺序</p>
             <van-cell-group v-show="!!equityPriority" class="drag-container" v-dragula="listIndustry" service="my-second" drake="first">
                 <van-cell center
                           v-for="(item,index) in listIndustry"
@@ -25,6 +25,7 @@
                     </template>
                 </van-cell>
             </van-cell-group>
+            <van-button type="default" block class="login-out" @click="handleLoginOut">退出登录</van-button>
         </div>
         <van-popup class="popup-container popup-password" v-model="popup.show" position="right" >
             <van-form @submit="handleSubmit" :show-error-message="false">
@@ -101,8 +102,7 @@
 </template>
 
 <script>
-    import Vue from 'vue'
-    import { sendSms } from '@/api/auth-api'
+    import { sendSms,userLogout } from '@/api/auth-api'
     import {
         getByCustomerInfo,
         getByCustomerInfoUpdate,
@@ -157,6 +157,14 @@
                         type:val
                     }
                 });
+            },
+            async handleSwitch(val){
+                console.log(val)
+                val == 1 && (await this.getIndustryList())
+                setTimeout(()=>{
+                    this.setCustomer()
+                },500)
+
             },
             handleSubmit(val){
                 if(this.$route.query.type == 'reset'){
@@ -217,6 +225,16 @@
                     }
                 });
             },
+            handleLoginOut(){
+                userLogout().then(data => {
+                    this.$router.replace({
+                        path:'/login',
+                        query:{
+                            openId:this.openId
+                        }
+                    })
+                })
+            },
 
             handleDragClick(e){
                 e.stopPropagation();
@@ -228,7 +246,7 @@
                     id:this.id,
                     priority:this.priority,
                     equityPriority:this.equityPriority,
-                    equityPriorityOrder:this.listIndustry.map(item => item.industryUserId).join(',')
+                    equityPriorityOrder:this.listIndustry.length && this.listIndustry.map(item => item.industryUserId).join(',') || ''
                 }
                 getByCustomerInfoUpdate(_data).then(data => {
                     this.$toast('设置成功')
@@ -238,7 +256,7 @@
                 getByCustomerInfo().then(data => {
                     this.priority = data.data.priority;
                     this.equityPriority = data.data.equityPriority;
-                    this.listIndustry = data.data.list;
+                    this.listIndustry = data.data.list || [];
                     this.id = data.data.id
                 })
             },
@@ -276,7 +294,8 @@
         },
         computed: {
             ...mapState({
-                phoneNo: state => state.user.userInfo.phoneNo
+                phoneNo: state => state.user.userInfo.phoneNo,
+                openId: state => state.user.openId
             }),
         },
         mounted(){
@@ -298,24 +317,21 @@
                 this.popupCode.show = false;
             }
             this.getByCustomer();
-            this.getIndustryList();
             const service = this.$dragula.$service
 
             service.options( 'first', { direction: 'vertical' } )
             service.eventBus.$on('dropModel', ({ dragIndex,dropIndex }) => {
                 let _tempList = JSON.parse(JSON.stringify(this.listIndustry))
                 console.log('dragend: ', dragIndex,dropIndex,this.listIndustry)
-                let _temp = _tempList[dragIndex]
-                _tempList[dragIndex] = _tempList[dropIndex]
-                _tempList[dropIndex] = _temp;
+
+                let _temp = _tempList.splice(dragIndex,1)
+                _tempList.splice(dropIndex,0,_temp[0]);
 
                 this.listIndustry = [];
                 this.$nextTick(()=>{
                     this.listIndustry = _tempList;
                     this.setCustomer();
                 })
-
-
             })
         }
     }
@@ -350,6 +366,11 @@
                 font-size: 40px;
                 color: #909499;
             }
+        }
+        .login-out{
+            margin-top: 50px;
+            border: none;
+            color: #f44336;
         }
     }
     .popup-password{
