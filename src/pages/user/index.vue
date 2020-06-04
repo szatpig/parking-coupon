@@ -27,7 +27,6 @@
 </template>
 
 <script>
-    import WxMixin from '@/mixins/wxMixin'
     import headImg from '@/images/head-img.png'
     import SvgComponent from '@/components/svg'
     import { customerCarList } from '@/api/user-api'

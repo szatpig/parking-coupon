@@ -50,6 +50,7 @@
 </template>
 
 <script>
+    import md5 from "md5"
     import { userLogin, userCodeLogin, sendSms } from '@/api/auth-api'
     import { mapActions } from  'vuex'
     import YntCode from '@/components/YntCode'
@@ -138,7 +139,9 @@
                 try {
                     if(this.loginType){
                         data = await userLogin({
-                            phone,password,openId
+                            phone,
+                            password:md5(password),
+                            openId
                         })
                     }else{
                         data = await userCodeLogin({

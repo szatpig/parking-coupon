@@ -67,7 +67,6 @@
 </template>
 
 <script>
-    import WxMixin from '@/mixins/wxMixin'
     import SvgComponent from '@/components/svg'
     import { parkingList } from '@/api/parking-api'
     import { geocoder } from '@/api/common-api'
@@ -252,7 +251,7 @@
                             this.init();
                         }
                     });
-                },300)
+                },400)
             });
         }
     }

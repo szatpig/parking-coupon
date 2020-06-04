@@ -102,6 +102,7 @@
 </template>
 
 <script>
+    import md5 from "md5"
     import { sendSms,userLogout } from '@/api/auth-api'
     import {
         getByCustomerInfo,
@@ -168,11 +169,13 @@
             },
             handleSubmit(val){
                 if(this.$route.query.type == 'reset'){
-                    const { phone,code } = this.$route.query
+                    const { phone,code } = this.$route.query;
+                    const { newPassword, affirmPassword } = val;
                     forgetPassword({
                         phone,
                         code,
-                        ...val
+                        newPassword:md5(newPassword),
+                        affirmPassword:md5(affirmPassword)
                     }).then(() => {
                         this.$toast('密码修改成功')
                         this.$router.replace('/home/user/setting');
@@ -191,7 +194,12 @@
                         }
                     })
                 }else{
-                    resetPassword(val).then(() => {
+                    const { oldPassword, newPassword, affirmPassword } = val
+                    resetPassword({
+                        oldPassword:md5(oldPassword),
+                        newPassword:md5(newPassword),
+                        affirmPassword:md5(affirmPassword)
+                    }).then(() => {
                         this.$toast('密码修改成功')
                         this.$router.replace('/home/user/setting');
                     })

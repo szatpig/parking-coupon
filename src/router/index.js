@@ -3,6 +3,8 @@
 import Router from 'vue-router'
 import store from '@/vuex'
 
+import wxShare from '@/utils/wechat'
+
 //webpackChunkName 一定要写，是code split 后的命名 [ChunkName].[hash].js
 const Home = () => import(/* webpackChunkName: "home" */ '@/pages/home');
 
@@ -36,7 +38,7 @@ const routes =[
                 component:Search,
                 name:'search',
                 meta:{
-                    title:'停车场搜索'
+                    title:'ETC停车场'
                 }
             },
             {
@@ -127,7 +129,10 @@ const routes =[
         path: '*',
         component: ()=>{
             router.push({
-                path: '/login'
+                path: '/login',
+                query:{
+                    openId: store.state.user.openId || ''
+                }
             })
         }
     }
@@ -190,6 +195,25 @@ router.beforeEach((to, from, next) => {
     }else {
         console.log(1)
         next()
+    }
+
+});
+
+router.afterEach((to, from)=>{
+    let u = navigator.userAgent,
+        isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //g
+    if (to.matched.some(r => r.meta.requireAuth) && store.state.user.openId){
+        if(Number(sessionStorage.getItem('wx'))){
+            if(isAndroid){
+                setTimeout(()=>{
+                    wxShare();
+                },100)
+            }
+        }else{
+            setTimeout(()=>{
+                wxShare();
+            },100)
+        }
     }
 
 });

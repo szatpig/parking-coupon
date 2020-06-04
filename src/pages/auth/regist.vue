@@ -71,6 +71,7 @@
 </template>
 
 <script>
+    import md5 from "md5"
     import { sendSms,userRegister } from '@/api/auth-api'
     import { mapActions } from  'vuex'
     import YntCode from '@/components/YntCode'
@@ -174,11 +175,14 @@
                     return false;
                 }
                 this.user.openId = this.$route.query.openId;
-                userRegister(this.user).then((data) => {
+                userRegister({
+                    ...this.user,
+                    password:md5(this.user.password),
+                }).then((data) => {
                     this.setUserInfo(data.data);
                     this.setUserToken(data.data.token);
                     this.$router.replace({
-                        path:'/user'
+                        path:'/home/user'
                     });
                 })
             },

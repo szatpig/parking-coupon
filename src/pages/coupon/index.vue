@@ -31,7 +31,7 @@
                     <van-icon name="close" size="28" @click="overlay.show = false"/>
                 </div>
                 <div class="bottom-wrap">
-                    <p>您的车辆苏E888U8获得 {{ couponList.length }} 张优惠券！</p>
+                    <p>您的车辆{{ overlay.plateNo }}获得 {{ couponList.length }} 张优惠券！</p>
                     <div class="list-wrap">
                         <div class="flex" v-for="item in couponList" :key="item.id">
                             <div class="list-txt">
@@ -50,13 +50,13 @@
 
 <script>
     import { customerCarCouponList, receiveCoupons } from '@/api/user-api'
-    import WxMixin from '@/mixins/wxMixin'
     export default {
         name: "coupon",
         data() {
             return {
                 overlay:{
-                    show:false
+                    show:false,
+                    plateNo:''
                 },
                 carList:[],
                 couponList:[]
@@ -70,6 +70,8 @@
                 }).then(data => {
                     this.couponList = data.data
                     this.overlay.show = true;
+                    this.overlay.plateNo = plateNo;
+                    this.list();
                 })
             },
             list(){

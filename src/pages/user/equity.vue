@@ -5,7 +5,7 @@
             <p><span>余额</span><i>￥</i>{{ picker.income }}</p>
         </div>
         <van-tabs v-model="search.tabName" swipeable sticky @change="handleTab">
-            <van-tab v-for="item in tabList" :title="item.label"></van-tab>
+            <van-tab v-for="item in tabList" :key="item.value" :title="item.label"></van-tab>
         </van-tabs>
         <van-list
                 class="equity-list"
@@ -35,8 +35,8 @@
         <van-popup class="popup-container" v-model="popup.show" position="right" >
             <div class="popup-equity" v-if="$route.query.type == 2">
                 <div class="popup-title">
-                    <p>{{ this.popup.data.parkingNames || '--' }}</p>
-                    <p>+{{ this.popup.data.equityAmount.toFixed(2) }}</p>
+                    <p>{{ this.popup.data.industryUser || '--' }}</p>
+                    <p>+{{ this.popup.data.equityAmount && this.popup.data.equityAmount.toFixed(2) || '0.00' }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>
@@ -56,7 +56,7 @@
             <div class="popup-equity" v-else-if ="$route.query.type == 4">
                 <div class="popup-title">
                     <p>过期作废</p>
-                    <p>–{{ this.popup.data.verifyAmount.toFixed(2) }}</p>
+                    <p>–{{ this.popup.data.equityBalance && this.popup.data.equityBalance.toFixed(2) || '0.00' }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>
@@ -76,7 +76,7 @@
             <div class="popup-equity" v-else-if ="$route.query.type == 8">
                 <div class="popup-title">
                     <p>撤销收回</p>
-                    <p>–{{ this.popup.data.verifyAmount.toFixed(2) }}</p>
+                    <p>–{{ this.popup.data.equityBalance && this.popup.data.equityBalance.toFixed(2) || '0.00' }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>
@@ -165,7 +165,7 @@
                 typeList:{
                     4:'权益金额到期返还',
                     6:'车主使用权益金',
-                    8:'撤销权益金'
+                    8:'撤消权益金'
                 },
                 pageIndex:1,
                 dataList: [],
@@ -188,10 +188,12 @@
                     }else{
                         data = await incomeDetail({ equityId:item.id })
                     }
+                    console.log(data.data)
                     this.popup.data = data.data;
                     this.$router.push({
                         query:{
-                            type: this.search.tabName ? item.changeType : 2
+                            type: this.search.tabName ? item.changeType : 2,
+                            id:item.id
                         }
                     });
                 }catch (e) {
@@ -292,7 +294,7 @@
                     this.popup.show = true;
                 }else{
                     this.popup.data = ''
-                    this.$router.replace('/home/user/equity')
+                    this.$router.push('/home/user/equity')
                 }
             }else{
                 this.popup.data = ''

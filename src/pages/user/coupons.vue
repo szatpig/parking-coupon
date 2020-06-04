@@ -1,7 +1,7 @@
 <template>
     <div class="coupons-container">
         <van-tabs v-model="tabName" swipeable sticky @change="handleTab">
-            <van-tab v-for="item in tabList" :title="item.label" :name="item.value"></van-tab>
+            <van-tab v-for="item in tabList" :title="item.label" :key="item.value" :name="item.value"></van-tab>
         </van-tabs>
         <van-list
                 class="coupons-list"

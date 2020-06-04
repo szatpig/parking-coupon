@@ -9,7 +9,7 @@
 
 <script>
     import MenuLayout from '@/components/Menu'
-    import WxMixin from '@/mixins/wxMixin'
+    // import WxMixin from '@/mixins/wxMixin'
     export default {
         name: "home",
         data() {
@@ -18,7 +18,7 @@
         components: {
             MenuLayout
         },
-        mixins:[WxMixin],
+        // mixins:[WxMixin],
         methods: {},
         computed: {},
         mounted(){
