@@ -34,7 +34,7 @@
             </van-cell>
         </van-list>
         <van-popup class="popup-container" v-model="picker.show" position="right" >
-            <div class="popup-equity" v-if="this.picker.data && this.picker.data.id">
+            <div class="popup-equity" v-if="picker.data && picker.data.id">
                 <div class="popup-title">
                     <p>{{ this.picker.data.parkingName }}</p>
                     <p>– {{ this.picker.data.realAmount.toFixed(2) }}</p>

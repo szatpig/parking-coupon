@@ -174,7 +174,15 @@
                     });
                     return false;
                 }
+                reg =/^(?=.*[0-9])(?=.*[a-zA-Z])(.{6,12})$/
+                if(!reg.test(this.user.password)){
+                    this.$toast({
+                        message: '密码至少包含字母和数字 >_<',
+                    });
+                    return false;
+                }
                 this.user.openId = this.$route.query.openId;
+                this.user.industryId = this.$route.query.industryId || '';
                 userRegister({
                     ...this.user,
                     password:md5(this.user.password),
@@ -182,7 +190,7 @@
                     this.setUserInfo(data.data);
                     this.setUserToken(data.data.token);
                     this.$router.replace({
-                        path:'/home/user'
+                        path:'/home/coupon'
                     });
                 })
             },

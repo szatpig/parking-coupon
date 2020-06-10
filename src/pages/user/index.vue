@@ -20,7 +20,7 @@
         </div>
         <div class="switch-wrap">
             <van-cell title="我的车辆" is-link @click="handleLink" :value="user.car" />
-            <van-cell title="联系客服" @click="handleCall" is-link  />
+            <!--<van-cell title="联系客服" @click="handleCall" is-link  />-->
             <van-cell title="设置" is-link  to="/home/user/setting"/>
         </div>
     </div>

@@ -284,6 +284,7 @@
                 padding: 10px 16px 24px;
                 .van-search__content{
                     background-color: #fff;
+                    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.06);
                 }
                 .van-cell{
                     height: 80px;
@@ -293,6 +294,7 @@
             .location-ex{
                 padding:  0 16px 24px ;
                 .location-item{
+                    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.06);
                     border-radius: 12px;
                 }
             }

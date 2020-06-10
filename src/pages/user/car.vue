@@ -28,7 +28,6 @@
                 <van-field
                         label="车牌号"
                         maxlength="11"
-                        type="tel"
                         v-model.trim="popup.data.plateNo"
                         placeholder="请输入您的车牌号"
                         @input="handlePlateNoChange"
@@ -106,7 +105,7 @@
                     }
                 });
                 if(item){
-                    this.popup.data = item;
+                    this.popup.data = JSON.parse(JSON.parse(item));
                 }else{
                     this.popup.data = {
                         plateNo:'',
@@ -197,6 +196,9 @@
 
 <style lang="scss">
     .car-container{
+        height: 100%;
+        overflow: auto;
+        margin-bottom: 100px;
         .car-btn{
             padding: 0 32px;
             .car-link{

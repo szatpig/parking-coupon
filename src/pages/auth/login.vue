@@ -35,7 +35,7 @@
                     <ynt-code slot="button" @handleSend="handleSend" :disabled="disabled" ref="timer" :second="second"></ynt-code>
                 </van-field>
                 <van-button
-                    :disabled="!(checked && user.phone && user.password && user.phone.length == 11)"
+                    :disabled="!(checked && user.phone && (user.password || user.code) && user.phone.length == 11)"
                     class="login-submit"
                     size="large"
                     round
@@ -97,7 +97,6 @@
                     });
                     return false;
                 }
-
                 let _data = {
                     phone: this.user.phone,
                     type:'wxmp'
@@ -126,6 +125,13 @@
                         });
                         return false;
                     }
+                    reg =/^(?=.*[0-9])(?=.*[a-zA-Z])(.{6,12})$/
+                    if(!reg.test(this.user.password)){
+                        this.$toast({
+                            message: '密码至少包含字母和数字 >_<',
+                        });
+                        return false;
+                    }
                 }else{
                     if(!this.user.code){
                         this.$toast({
@@ -151,7 +157,7 @@
                     this.setUserInfo(data.data);
                     this.setUserToken(data.data.token);
                     this.$router.replace({
-                        path:'/home/user'
+                        path:'/home/coupon'
                     });
                 }catch (e) {
 

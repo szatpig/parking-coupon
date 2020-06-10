@@ -17,7 +17,7 @@
                 <van-cell center
                           v-for="(item,index) in listIndustry"
                           :title="item.industryUserName"
-                          :label="item.expirationTime + ' 到期'"
+                          :label="item.expirationTime + ':00 到期'"
                           :key="item.industryUserId"
                           @click="handleDragClick">
                     <template #right-icon>
@@ -28,7 +28,7 @@
             <van-button type="default" block class="login-out" @click="handleLoginOut">退出登录</van-button>
         </div>
         <van-popup class="popup-container popup-password" v-model="popup.show" position="right" >
-            <van-form @submit="handleSubmit" :show-error-message="false">
+            <van-form @submit="handleSubmit" :show-error="false">
                 <van-field
                     v-if="$route.query.type == 'password'"
                     type="password"
@@ -67,7 +67,7 @@
                     ]"
                     @blur="handelPageAdjust" />
                 <p class="popup-flex">
-                    <span>密码为6-12位字符</span>
+                    <span>密码为6-12位字符，包含字母和数字</span>
                     <span @click="handleShow('code')" v-if="$route.query.type == 'password'">忘记密码？</span>
                 </p>
                 <div class="popup-btn">
@@ -76,7 +76,7 @@
             </van-form>
         </van-popup>
         <van-popup class="popup-container popup-code" v-model="popupCode.show" position="right" >
-            <van-form @submit="handleReset" :show-error-message="false">
+            <van-form @submit="handleReset" :show-error="false">
                 <p class="code-tips">发送验证码到您的手机</p>
                 <p class="code-phone">{{ phoneNo.replace(/(\d{3})(\d{4})(\d{4})/,'$1xxxx$3') }}</p>
                 <van-field
@@ -208,7 +208,7 @@
             },
             handleSend(){
                 let _data = {
-                    plateNo: this.phoneNo,
+                    phone: this.phoneNo,
                     type:'wx_password'
                 };
                 sendSms(_data).then(data => {
@@ -347,6 +347,12 @@
 
 <style lang="less">
     .setting-container{
+        -webkit-touch-callout:none;
+        -webkit-user-select:none;
+        -khtml-user-select:none;
+        -moz-user-select:none;
+        -ms-user-select:none;
+        user-select:none;
         touch-action: pan-y;
         input[type=text],input[type=tel],input[type=password]{
             font-size: 28px;

@@ -165,7 +165,7 @@
                 typeList:{
                     4:'权益金额到期返还',
                     6:'车主使用权益金',
-                    8:'撤消权益金'
+                    8:'撤销权益金'
                 },
                 pageIndex:1,
                 dataList: [],
@@ -215,8 +215,8 @@
                 this.search.plateColor = this.picker.carList[index].color;
                 this.picker.show = false;
                 this.search.tabName = 0;
-                this.refreshing = true;
-                this.onLoad()
+                // this.refreshing = true;
+                // this.onLoad()
             },
             async onLoad() {
                 if (this.refreshing) {

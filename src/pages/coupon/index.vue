@@ -25,7 +25,7 @@
                 </div>
             </div>
         </div>
-        <van-overlay class="overlay-container" :show="overlay.show" >
+        <van-overlay class="overlay-container" :lock-scroll="false" :show="overlay.show" >
             <div class="overlay-wrapper">
                 <div class="header-wrap">
                     <van-icon name="close" size="28" @click="overlay.show = false"/>
@@ -91,8 +91,14 @@
     .coupon-container{
         background:url("../../images/coupon-bg.png") top center / 100% 240px no-repeat; //radial-gradient( circle at 0 360px,#2E72F4 240px , #2E72F4 0 ) top center / 100% 240px no-repeat;
         padding-top: 176px;
+        height: 100%;
+        overflow: auto;
+        margin-bottom: 100px;
         .coupon-car-list{
             padding: 0 32px;
+            .car-cell{
+                box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.06);
+            }
         }
         .car-cell{
             padding: 48px 32px;

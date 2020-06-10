@@ -64,11 +64,7 @@
                 finished: false,
                 sheet:{
                     show:false,
-                    temp:'',
-                    url:[],
-                    data:[
-                        {name:"腾讯地图"},{name:"高德地图"},{name:"百度地图"}
-                    ]
+                    temp:''
                 }
             }
         },
@@ -77,7 +73,8 @@
         },
         methods: {
             onSearch(){
-
+                this.refreshing = true;
+                this.onLoad();
             },
             onCancel(){
 
@@ -111,25 +108,6 @@
                     this.finished = true;
                 })
             },
-            initUrl({ longitude,latitude,location }){
-                let u = navigator.userAgent, app = navigator.appVersion;
-                let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //g
-                if (isAndroid) {
-                    // 百度地图uri api
-                    this.sheet.url[0] = "bdapp://map/navi?location=" + latitude + "," + longitude + "&query=" + location;
-                    // 高德地图uri api
-                    this.sheet.url[1] = "androidamap://navi?sourceApplication=xlwx&poiname=" + location + "&latitude=" + latitude + "&lon=" + longitude + "&dev=1&style=2";
-                    // 腾讯地图uri api
-                    this.sheet.url[2] = "qqmap://map/marker?marker=coord:" + latitude + "," + longitude + ";title:" + location + "&referer=xlwx";
-                } else {
-                    // 百度地图uri api
-                    this.sheet.url[0] = "baidumap://map/navi?location=" + latitude + "," + longitude + "&query="+ location;
-                    // 高德地图uri api
-                    this.sheet.url[1] = "iosamap://navi?sourceApplication=xlwx&poiname=" + location + "&lat=" + latitude + "&lon=" + longitude + "&dev=1&style=2";
-                    // 腾讯地图uri api
-                    this.sheet.url[2] = "qqmap://map/marker?marker=coord:" + latitude + "," + longitude + ";title:" + location + "&referer=xlwx";
-                }
-            },
             handleShowSheet({ latitude,longitude,parkingName,location },e) {
                 e.stopPropagation();
                 e.preventDefault();
@@ -141,9 +119,6 @@
                     scale: 16, // 地图缩放级别,整形值,范围从1~28。默认为最大
                     infoUrl: '' // 在查看位置界面底部显示的超链接,可点击跳转
                 });
-            },
-            handleSelect(action,index){
-                location.href = this.sheet.url[index]
             }
         },
         computed: {},

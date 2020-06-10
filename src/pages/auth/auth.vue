@@ -25,10 +25,11 @@
             turnTo(){
                 if(this.$route.query.redirect
                     && this.$route.query.redirect.indexOf('/login') < 0
-                    && this.$route.query.redirect !='/'){
+                    && this.$route.query.redirect !='/'
+                    && this.$route.query.redirect.indexOf('/register') < 0){
                     this.$router.push({ path: this.$route.query.redirect });
                 }else{
-                    this.$router.push({ path:'/home/user'});
+                    this.$router.push({ path:'/home/coupon'});
                 }
             },
             async handleOpenIdLogin(){
@@ -43,12 +44,16 @@
                     this.turnTo();
                 }catch (e) {
                     if(e.status === 5011){
-                        this.$router.replace({
-                            path:'/register',
-                            query:{
-                                openId:this.$route.query.openId
-                            }
-                        })
+                        if(this.$route.query.redirect.indexOf('/register') > -1){
+                            this.$router.replace({ path: this.$route.query.redirect });
+                        }else{
+                            this.$router.replace({
+                                path:'/register',
+                                query:{
+                                    openId:this.$route.query.openId
+                                }
+                            })
+                        }
                     }else if(e.status === 5012){
                         this.$router.replace({
                             path:'/login',
