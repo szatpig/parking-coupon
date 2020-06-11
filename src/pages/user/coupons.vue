@@ -104,6 +104,10 @@
                 this.onLoad();
             },
             handleCollapse(id){
+                if(this.tempIndex == id ){
+                    this.tempIndex = -1
+                    return;
+                }
                 this.tempIndex = id
             },
             handlePicker(customerCouponId){
@@ -133,6 +137,7 @@
             list(pageNum,pageSize = 8){
                 let _data ={
                     couponStatus:this.tabName,
+                    platNo:this.$route.query.plateNo || '',
                     pageNum,
                     pageSize
                 }

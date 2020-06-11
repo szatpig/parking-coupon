@@ -12,7 +12,7 @@
                         </div>
                     </div>
                     <van-button v-if="item.unReceivedCount" round size="small" type="warning" @click="handleGet(item)">立即领取</van-button>
-                    <van-button v-else round size="small" @click="$router.push('/home/user/coupons')">查看全部<van-icon name="arrow" /></van-button>
+                    <van-button v-else round size="small" @click="$router.push('/home/user/coupons?platNo='+item.plateNo)">查看全部<van-icon name="arrow" /></van-button>
                 </div>
             </template>
 
