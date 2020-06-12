@@ -137,7 +137,8 @@
             list(pageNum,pageSize = 8){
                 let _data ={
                     couponStatus:this.tabName,
-                    platNo:this.$route.query.plateNo || '',
+                    plateNo:this.$route.query.plateNo || '',
+                    plateColor:this.$route.query.plateColor || '',
                     pageNum,
                     pageSize
                 }

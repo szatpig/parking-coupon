@@ -134,9 +134,21 @@
             background-color: #fff;
             padding: 0 0 0 24px;
             .van-search{
-                width: 635px;
+                width: calc(100% - 90px);
             }
             .search-location-txt{
+                flex: 0 0 80px;
+                white-space: nowrap;
+                display: flex;
+                justify-content: flex-start;
+                flex-flow: row nowrap;
+                i{
+                    &:first-child{
+                        max-width: 200px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                }
                 .van-icon{
                     margin-left: 6px;
                 }
