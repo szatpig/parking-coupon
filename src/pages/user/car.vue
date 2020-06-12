@@ -105,7 +105,7 @@
                     }
                 });
                 if(item){
-                    this.popup.data = JSON.parse(JSON.parse(item));
+                    this.popup.data = JSON.parse(JSON.stringify(item));
                 }else{
                     this.popup.data = {
                         plateNo:'',

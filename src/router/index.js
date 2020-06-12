@@ -157,7 +157,7 @@ let ua = window.navigator.userAgent.toLowerCase();
 router.beforeEach((to, from, next) => {
     console.log(location.href)
     if (to.meta.title) {
-        document.title = to.meta.title + '- ETC停车场'
+        document.title = 'ETC停车场 - ' + to.meta.title
     }
 
     // if(ua.match(/MicroMessenger/i) !== 'micromessenger'&& process.env.NODE_ENV === 'production'){

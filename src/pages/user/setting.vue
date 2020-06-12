@@ -2,7 +2,7 @@
     <div class="setting-container">
         <div class="setting-wrap">
             <van-cell title="修改密码" is-link @click="handleShow('password')" />
-            <van-cell title="优先使用权益金">
+            <van-cell :title="`优先使用${ priority ? '停车券':'权益金' }`">
                 <template>
                     <van-switch :active-value="0" :inactive-value="1" v-model="priority" @change="setCustomer" size="20px" />
                 </template>

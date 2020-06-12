@@ -167,6 +167,12 @@
                     6:'车主使用权益金',
                     8:'撤销权益金'
                 },
+                typeTitle:{
+                    2:'收入明细',
+                    4:'支出明细',
+                    6:'支出明细',
+                    8:'支出明细'
+                },
                 pageIndex:1,
                 dataList: [],
                 refreshing:false,
@@ -191,6 +197,9 @@
                     console.log(data.data)
                     this.popup.data = data.data;
                     this.$router.push({
+                        meta:{
+                            title: this.search.tabName ? '支出明细':'收入明细'
+                        },
                         query:{
                             type: this.search.tabName ? item.changeType : 2,
                             id:item.id
@@ -214,9 +223,10 @@
                 this.search.plateNo = this.picker.carList[index].text;
                 this.search.plateColor = this.picker.carList[index].color;
                 this.picker.show = false;
-                this.search.tabName = 0;
-                // this.refreshing = true;
-                // this.onLoad()
+                // this.search.tabName = 0;
+                this.refreshing = true;
+                this.onLoad()
+                // this.handleTab(0)
             },
             async onLoad() {
                 if (this.refreshing) {
@@ -280,8 +290,10 @@
                 console.log(to)
                 // 对路由变化作出响应...
                 if(to.query.type){
+                    this.$route.meta.title = this.search.tabName ? '支出明细':'收入明细'
                     this.popup.show = true;
                 }else{
+                    to.meta.title = '我的权益金'
                     this.popup.show = false;
                 }
             }
@@ -291,12 +303,14 @@
             let { type } = this.$route.query;
             if(type){
                 if(this.popup.data){
+                    this.$route.meta.title = this.search.tabName ? '支出明细':'收入明细'
                     this.popup.show = true;
                 }else{
                     this.popup.data = ''
                     this.$router.push('/home/user/equity')
                 }
             }else{
+                this.$route.meta.title = '我的权益金'
                 this.popup.data = ''
                 this.popup.show = false;
             }
