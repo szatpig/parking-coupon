@@ -248,14 +248,12 @@
                 try {
                     if(this.search.tabName){
                         data = await payList(_data)
-                        this.dataList = [...this.dataList,...data.data.list];
-                        total = data.data.total;
                     }else{
                         data = await incomeList(_data)
-                        this.picker.income = data.data.equityBalanceSum
-                        this.dataList = [...this.dataList,...data.data.pageInfo.list];
-                        total = data.data.pageInfo.total;
                     }
+                    this.picker.income = data.data.equityBalanceSum
+                    this.dataList = [...this.dataList,...data.data.pageInfo.list];
+                    total = data.data.pageInfo.total;
                     this.pageIndex ++ ;
                     if(this.dataList.length >= total){
                         this.finished = true;

@@ -76,7 +76,7 @@ module.exports = {
         // See https://github.com/vuejs/vue-cli/blob/dev/docs/cli-service.md#configuring-proxy
         proxy: {
             '/api': {
-                target: 'http://192.168.88.23:8083',
+                target: 'http://192.168.88.51:8083',
                 changeOrigin: true,
                 pathRewrite: {
                     '^/api': ``            //本地run dev接口代理

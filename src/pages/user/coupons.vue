@@ -37,7 +37,7 @@
             <div class="popup-equity" v-if="picker.data && picker.data.id">
                 <div class="popup-title">
                     <p>{{ this.picker.data.parkingName }}</p>
-                    <p>– {{ this.picker.data.parkingAmount.toFixed(2) }}</p>
+                    <p>– {{ this.picker.data.parkingAmount }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>
