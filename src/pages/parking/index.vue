@@ -283,6 +283,7 @@
             .van-search{
                 padding: 10px 16px 24px;
                 .van-search__content{
+                    padding-left:32px;
                     background-color: #fff;
                     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.06);
                 }

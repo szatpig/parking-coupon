@@ -36,7 +36,7 @@
             <div class="popup-equity" v-if="$route.query.type == 2">
                 <div class="popup-title">
                     <p>{{ this.popup.data.industryUser || '--' }}</p>
-                    <p>+{{ this.popup.data.equityAmount && this.popup.data.equityAmount.toFixed(2) || '0.00' }}</p>
+                    <p>+{{ this.popup.data.equityAmount || '0.00' }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>
@@ -56,7 +56,7 @@
             <div class="popup-equity" v-else-if ="$route.query.type == 4">
                 <div class="popup-title">
                     <p>过期作废</p>
-                    <p>–{{ this.popup.data.equityBalance && this.popup.data.equityBalance.toFixed(2) || '0.00' }}</p>
+                    <p>–{{ this.popup.data.expiredAmount || '0.00' }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>
@@ -76,7 +76,7 @@
             <div class="popup-equity" v-else-if ="$route.query.type == 8">
                 <div class="popup-title">
                     <p>撤销收回</p>
-                    <p>–{{ this.popup.data.equityBalance && this.popup.data.equityBalance.toFixed(2) || '0.00' }}</p>
+                    <p>–{{ this.popup.data.expiredAmount || '0.00' }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>
@@ -96,7 +96,7 @@
             <div class="popup-equity" v-else-if ="$route.query.type == 6">
                 <div class="popup-title">
                     <p>{{ this.popup.data.parkingNames }}</p>
-                    <p>-{{ this.popup.data.verifyAmount.toFixed(2) }}</p>
+                    <p>-{{ this.popup.data.parkingAmount }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>

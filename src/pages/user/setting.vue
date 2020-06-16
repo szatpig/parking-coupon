@@ -13,7 +13,7 @@
                 </template>
             </van-cell>
             <p v-show="!!equityPriority && listIndustry.length" class="setting-tips">请拖动权益金扣款顺序</p>
-            <van-cell-group v-show="!!equityPriority" class="drag-container" v-dragula="listIndustry" service="my-second" drake="first">
+            <van-cell-group v-show="!!equityPriority" class="drag-container" >
                 <van-cell center
                           v-for="(item,index) in listIndustry"
                           :title="item.industryUserName"
@@ -21,7 +21,7 @@
                           :key="item.industryUserId"
                           @click="handleDragClick">
                     <template #right-icon>
-                        <van-icon name="exchange" />
+                        <van-icon name="ascending" v-if="index !== 0" @click="handleDragClick(index,$event)"/>
                     </template>
                 </van-cell>
             </van-cell-group>
@@ -244,9 +244,20 @@
                 })
             },
 
-            handleDragClick(e){
+            handleDragClick(index,e){
                 e.stopPropagation();
                 e.preventDefault();
+                let _tempList = JSON.parse(JSON.stringify(this.listIndustry))
+                console.log('dragend: ', index,0,this.listIndustry)
+
+                let _temp = _tempList.splice(index,1)
+                _tempList.splice(0,0,_temp[0]);
+
+                this.listIndustry = [];
+                this.$nextTick(()=>{
+                    this.listIndustry = _tempList;
+                    this.setCustomer();
+                })
             },
 
             setCustomer(){
@@ -325,27 +336,48 @@
                 this.popupCode.show = false;
             }
             this.getByCustomer();
-            const service = this.$dragula.$service
+            // const service = this.$dragula.$service
+            //
+            // service.options( 'first', { direction: 'vertical' })
+            // service.eventBus.$on(
+            //     'drag', (drake, el, container) => {
+            //             document.documentElement.classList.add('disabled-scroll')
+            //             document.body.classList.add('disabled-scroll')
+            //             document.querySelector('.setting-container').classList.add('disabled-scroll')
+            //             document.querySelector('.setting-wrap').classList.add('disabled-scroll')
+            //     }
+            // )
+            // service.eventBus.$on(
+            //         'drop', (drake, el, container) => {
+            //             document.documentElement.classList.remove('disabled-scroll')
+            //             document.body.classList.remove('disabled-scroll')
+            //             document.querySelector('.setting-container').classList.remove('disabled-scroll')
+            //             document.querySelector('.setting-wrap').classList.add('disabled-scroll')
+            //         }
+            // )
+            // service.eventBus.$on('dropModel', ({ dragIndex,dropIndex }) => {
+            //
+            //     let _tempList = JSON.parse(JSON.stringify(this.listIndustry))
+            //     console.log('dragend: ', dragIndex,dropIndex,this.listIndustry)
+            //
+            //     let _temp = _tempList.splice(dragIndex,1)
+            //     _tempList.splice(dropIndex,0,_temp[0]);
+            //
+            //     this.listIndustry = [];
+            //     this.$nextTick(()=>{
+            //         this.listIndustry = _tempList;
+            //         this.setCustomer();
+            //     })
+            // })
 
-            service.options( 'first', { direction: 'vertical' } )
-            service.eventBus.$on('dropModel', ({ dragIndex,dropIndex }) => {
-                let _tempList = JSON.parse(JSON.stringify(this.listIndustry))
-                console.log('dragend: ', dragIndex,dropIndex,this.listIndustry)
-
-                let _temp = _tempList.splice(dragIndex,1)
-                _tempList.splice(dropIndex,0,_temp[0]);
-
-                this.listIndustry = [];
-                this.$nextTick(()=>{
-                    this.listIndustry = _tempList;
-                    this.setCustomer();
-                })
-            })
         }
     }
 </script>
 
 <style lang="less">
+    .disabled-scroll{
+        overflow: hidden;
+    }
     .setting-container{
         -webkit-touch-callout:none;
         -webkit-user-select:none;
@@ -354,11 +386,15 @@
         -ms-user-select:none;
         user-select:none;
         touch-action: pan-y;
+        flex: 1;
+        height: 100%;
+        overflow: auto;
         input[type=text],input[type=tel],input[type=password]{
             font-size: 28px;
             height: 48px;
         }
         .setting-wrap{
+            padding-bottom: 100px;
             .van-cell{
                 .van-cell__title{
                     flex: 1.5;
@@ -376,13 +412,21 @@
             color: #909499;
         }
         .drag-container{
-            .van-icon-exchange{
+            .van-icon-ascending{
+                /*background-color: #EEF1F5;*/
+                /*width: 64px;*/
+                /*height: 64px;*/
+                /*line-height: 64px;*/
+                /*text-align: center;*/
+                /*border-radius: 64px;*/
                 font-size: 40px;
                 color: #909499;
+                /*transform: rotate(180deg);*/
             }
         }
         .login-out{
             margin-top: 50px;
+            margin-bottom: 50px;
             border: none;
             color: #f44336;
         }
