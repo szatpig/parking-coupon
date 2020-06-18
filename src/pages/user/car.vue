@@ -122,14 +122,22 @@
                 if(this.popup.data.id){
                     let { id,plateNo,plateColor } = this.popup.data
                     customerCarUpdate({ id,plateNo,plateColor }).then(()=>{
-                        this.$toast('车牌信息更新成功');
                         this.list();
+                        setTimeout(()=>{
+                            this.$toast('车牌信息更新成功');
+                        },100);
+
+
                         this.$router.go(-1);
                     })
                 }else{
                     customerCarInsert(this.popup.data).then(()=>{
-                        this.$toast('车牌信息添加成功');
                         this.list();
+                        setTimeout(()=>{
+                            this.$toast('车牌信息添加成功');
+                        },100);
+
+
                         this.$router.go(-1);
                     })
                 }

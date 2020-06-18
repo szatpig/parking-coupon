@@ -96,7 +96,7 @@
             <div class="popup-equity" v-else-if ="$route.query.type == 6">
                 <div class="popup-title">
                     <p>{{ this.popup.data.parkingNames }}</p>
-                    <p>-{{ this.popup.data.parkingAmount }}</p>
+                    <p>-{{ this.popup.data.verifyAmount }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>
@@ -197,9 +197,6 @@
                     console.log(data.data)
                     this.popup.data = data.data;
                     this.$router.push({
-                        meta:{
-                            title: this.search.tabName ? '支出明细':'收入明细'
-                        },
                         query:{
                             type: this.search.tabName ? item.changeType : 2,
                             id:item.id
@@ -285,13 +282,13 @@
         },
         watch: {
             '$route' (to, from) {
-                console.log(to)
+                console.log(to,from)
                 // 对路由变化作出响应...
-                if(to.query.type){
-                    this.$route.meta.title = this.search.tabName ? '支出明细':'收入明细'
+                if(to.query.type > 0){
+                    document.title = 'ETC停车场 - ' + (this.search.tabName ? '支出明细':'收入明细')
                     this.popup.show = true;
                 }else{
-                    to.meta.title = '我的权益金'
+                    document.title = 'ETC停车场 - 我的权益金'
                     this.popup.show = false;
                 }
             }
@@ -299,7 +296,7 @@
         computed: {},
         created() {
             let { type } = this.$route.query;
-            if(type){
+            if(type > 0){
                 if(this.popup.data){
                     this.$route.meta.title = this.search.tabName ? '支出明细':'收入明细'
                     this.popup.show = true;

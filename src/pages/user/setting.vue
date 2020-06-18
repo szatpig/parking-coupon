@@ -12,7 +12,7 @@
                     <van-switch :active-value="0" :inactive-value="1" v-model="equityPriority" @change="handleSwitch" size="20px" />
                 </template>
             </van-cell>
-            <p v-show="!!equityPriority && listIndustry.length" class="setting-tips">请拖动权益金扣款顺序</p>
+            <p v-show="!!equityPriority && listIndustry.length" class="setting-tips">请点选权益金扣款顺序</p>
             <van-cell-group v-show="!!equityPriority" class="drag-container" >
                 <van-cell center
                           v-for="(item,index) in listIndustry"
@@ -177,8 +177,10 @@
                         newPassword:md5(newPassword),
                         affirmPassword:md5(affirmPassword)
                     }).then(() => {
-                        this.$toast('密码修改成功')
-                        this.$router.replace('/home/user/setting');
+                        setTimeout(()=>{
+                            this.$toast('密码修改成功')
+                        },100);
+                        this.handleLoginOut();
                     }).catch(err => {
                         if(err.status == 9002 || err.status == 2003){
                             setTimeout(()=>{
@@ -200,8 +202,10 @@
                         newPassword:md5(newPassword),
                         affirmPassword:md5(affirmPassword)
                     }).then(() => {
-                        this.$toast('密码修改成功')
-                        this.$router.replace('/home/user/setting');
+                        setTimeout(()=>{
+                            this.$toast('密码修改成功')
+                        },100);
+                        this.handleLoginOut();
                     })
                 }
                 console.log(val)

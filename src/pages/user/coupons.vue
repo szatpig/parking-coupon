@@ -11,7 +11,7 @@
                 offset="50"
                 finished-text="没有更多停车券了"
                 @load="onLoad">
-            <van-cell v-for="item in dataList" :key="item.id" :class="{ used:tabName==2,expired:tabName==3 }">
+            <van-cell v-for="item in dataList" :key="item.id" :class="{ used:tabName==2,expired:tabName==3,cancel:item.couponStatus === 4 }">
                 <template #title>
                     <div class="cell-top flex">
                         <div class="flex">
@@ -269,7 +269,22 @@
                         background: url("../../images/expired.png") top left no-repeat ;
                         background-size: cover;
                     }
+                    &.cancel{
+                        &:before{
+                            content: '';
+                            display: block;
+                            position: absolute;
+                            top:0;
+                            left: 0;
+                            width: 62px;
+                            height: 62px;
+                            background: url("../../images/cancel.png") top left no-repeat ;
+                            background-size: cover;
+                        }
+                    }
                 }
+
+
                 .cell-top{
                     padding-bottom: 28px;
                     border-bottom: 2px dashed #DDDEE1;
