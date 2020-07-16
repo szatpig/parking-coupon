@@ -21,6 +21,7 @@
                                 <p>{{ item.expirationTime }} 到期</p>
                             </div>
                         </div>
+                        <van-icon class="qr-code" v-if="tabName == 1" name="qr" @click="handleQrCode(item)" />
                         <van-button v-if="tabName == 2" round size="mini" @click="handlePicker(item.id)">停车记录<van-icon name="arrow" /></van-button>
                     </div>
                     <div class="cell-bottom flex" @click.stop="handleCollapse(item.id)">
@@ -59,6 +60,24 @@
                 </div>
             </div>
         </van-popup>
+        <van-popup class="popup-container" v-model="qrCode.show" position="right" >
+            <div class="popup-equity">
+                <div class="popup-header">
+                    <p>{{ qrCode.data.plateNo }}</p>
+                    <p v-if="qrCode.data.couponType === 'DISCOUNT_DEDUCT'">8折停车券 <i>（上限100元）</i></p>
+                    <p v-else>400元优惠券</p>
+                    <p><img src="../../images/scan.png" /></p>
+                </div>
+                <div class="popup-content">
+                    <van-row>
+                        <van-col span="7">停车券码</van-col>
+                        <van-col span="17">{{ qrCode.data.couponNo }}</van-col>
+                        <van-col span="7">可用停车场</van-col>
+                        <van-col span="17">{{ qrCode.data.parkingName }}</van-col>
+                    </van-row>
+                </div>
+            </div>
+        </van-popup>
     </div>
 </template>
 
@@ -88,6 +107,11 @@
                     columns:['蓝色','黄色','黑色','白色','渐变绿色','黄绿双拼色','蓝白渐变色'],
                     data:''
                 },
+                qrCode:{
+                    show:false,
+                    columns:['蓝色','黄色','黑色','白色','渐变绿色','黄绿双拼色','蓝白渐变色'],
+                    data:''
+                },
                 pageIndex:1,
                 dataList: [],
                 tempIndex:-1,
@@ -109,6 +133,44 @@
                     return;
                 }
                 this.tempIndex = id
+            },
+            handleQrCode(item){
+                this.qrCode.data = {
+                    id:1,
+                    plateNo:'苏E11TL2',
+                    couponType:'FIX_DEDUCT',
+                    couponNo:'877661ge267765abf222',
+                    parkingName:'苏州工业园区纳米大学产业园停车场、苏州生命之源停车场、苏州湾停车场，苏州中心停车场，苏州园区地园区、苏州北站停车场'
+                }
+                this.$router.push({
+                    query:{
+                        result:'TIME_DEDUCT'
+                    }
+                });
+                return false;
+                let { couponType,couponNo } = item
+                let _data ={
+                    couponType,
+                    couponNo
+                }
+                couponUseRecord(_data).then(data => {
+                    this.qrCode.data = {
+                         ...item,
+                        img:data.data
+                    };
+                    if(data.data.id){
+                        this.qrCode.show = true;
+                        this.$router.push({
+                            query:{
+                                result:couponType
+                            }
+                        });
+                    }
+                })
+
+                    // FIX_DEDUCT:'固定抵扣金额券',
+                    // DISCOUNT_DEDUCT:'按比例折扣',
+                    // TIME_DEDUCT:'次数抵扣',
             },
             handlePicker(customerCouponId){
                 let _data ={
@@ -165,14 +227,17 @@
                 // 对路由变化作出响应...
                 if(to.query.type){
                     this.picker.show = true;
+                }else if(to.query.result){
+                    this.qrCode.show = true;
                 }else{
                     this.picker.show = false;
+                    this.qrCode.show = false;
                 }
             }
         },
         computed: {},
         created() {
-            let { type } = this.$route.query;
+            let { type,result } = this.$route.query;
             if(type){
                 if(this.picker.data){
                     this.picker.show = true;
@@ -180,9 +245,18 @@
                     this.picker.data = ''
                     this.$router.replace('/home/user/coupons')
                 }
+            }else if(result){
+                if(this.qrCode.data){
+                    this.qrCode.show = true;
+                }else{
+                    this.qrCode.data = ''
+                    this.$router.replace('/home/user/coupons')
+                }
             }else{
                 this.picker.data = ''
                 this.picker.show = false;
+                this.qrCode.data = ''
+                this.qrCode.show = false;
             }
         }
     }
@@ -302,6 +376,12 @@
                             }
                         }
                     }
+                    .qr-code{
+                        position: absolute;
+                        top:32px;
+                        right: 26px;
+                        font-size: 32px;
+                    }
                     .cell-txt{
                         p{
                             font-size: 32px;
@@ -372,6 +452,35 @@
                     margin-top: 24px;
                     font-size: 56px;
                     color: #000000;
+                }
+            }
+        }
+        .popup-header{
+            text-align: center;
+            color: #293547;
+            p{
+                &:nth-child(1){
+                    font-size: 28px;
+                    margin-top: 40px;
+                }
+                &:nth-child(2){
+                    font-size: 48px;
+                    margin-top: 24px;
+                    i{
+                        color: #9ea1a6;
+                        font-size: 28px;
+                    }
+                }
+                &:nth-child(3){
+                    margin-top: 40px;
+                    height: 368px;
+                    padding-bottom: 40px;
+                    text-align: center;
+                    border-bottom: 1px solid #DDDEE1;
+                    img{
+                        height: 100%;
+                        width: auto;
+                    }
                 }
             }
         }

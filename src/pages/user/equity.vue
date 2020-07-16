@@ -16,7 +16,7 @@
                 @load="onLoad">
             <van-cell v-for="item in dataList"
                       :key="item.id"
-                      :value="search.tabName==0 ? (' + ' +item.equityBalance.toFixed(2)):(' - ' + item.changeAmount.toFixed(2))"
+                      :value="search.tabName==0 ? (' + ' +item.equityAmount.toFixed(2)):(' - ' + item.changeAmount.toFixed(2))"
                       is-link
                       @click="handleShow(item)">
                 <template #title>

@@ -5,6 +5,8 @@ import store from '@/vuex'
 
 import wxShare from '@/utils/wechat'
 
+import merchantRoutes from './merchant-routes'
+
 //webpackChunkName 一定要写，是code split 后的命名 [ChunkName].[hash].js
 const Home = () => import(/* webpackChunkName: "home" */ '@/pages/home');
 
@@ -22,6 +24,7 @@ const Equity = () => import(/* webpackChunkName: "car" */ '@/pages/user/equity')
 const Author = () => import(/* webpackChunkName: "auth" */ '@/pages/auth/auth');
 const Login = () => import(/* webpackChunkName: "login" */ '@/pages/auth/login');
 const Register = () => import(/* webpackChunkName: "login" */ '@/pages/auth/regist');
+
 
 const routes =[
     {
@@ -125,6 +128,7 @@ const routes =[
             keepAlive:false
         }
     },
+    ...merchantRoutes,
     {
         path: '*',
         component: ()=>{
@@ -165,10 +169,8 @@ router.beforeEach((to, from, next) => {
     //     location.href='https://w.url.cn/s/A02CPn0';
     // }
 
-    if(ua.match(/MicroMessenger/i) !== 'micromessenger' && to.path.indexOf('author') === -1 && to.path.indexOf('login') === -1 && to.path.indexOf('register') === -1){
-        console.log(2)
+    if(ua.match(/MicroMessenger/i) !== 'micromessenger' && to.path.indexOf('author') === -1 && to.path.indexOf('login') === -1 && to.path.indexOf('register') === -1  && to.path.indexOf('/merchant') === -1){
         if (!store.state.user.openId){
-            console.log(4)
             next({
                 path: '/author',
                 query: { redirect: to.fullPath }
@@ -176,10 +178,8 @@ router.beforeEach((to, from, next) => {
         }else{
             if (to.matched.some(r => r.meta.requireAuth)) {
                 if(store.state.user.userToken){
-                    console.log(7)
                     next();
                 }else{
-                    console.log(6)
                     next({
                         path: '/login',
                         query: {
@@ -193,8 +193,25 @@ router.beforeEach((to, from, next) => {
             }
         }
     }else {
-        console.log(1)
-        next()
+        if(to.path.indexOf('/merchant') > -1){
+            if (to.matched.some(r => r.meta.requireAuth)) {
+                next();
+                // if(store.state.user.userToken){
+                //     next();
+                // }else{
+                //     next({
+                //         path: '/merchant/login',
+                //         query: {
+                //             redirect: to.fullPath
+                //         }
+                //     });
+                // }
+            }else{
+                next();
+            }
+        }else{
+            next()
+        }
     }
 
 });
