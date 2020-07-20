@@ -219,7 +219,7 @@ router.beforeEach((to, from, next) => {
 router.afterEach((to, from)=>{
     let u = navigator.userAgent,
         isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //g
-    if (to.matched.some(r => r.meta.requireAuth) && store.state.user.openId){
+    if (to.matched.some(r => r.meta.requireAuth) && store.state.user.openId || to.path.indexOf('/merchant') > -1){
         if(Number(sessionStorage.getItem('wx'))){
             if(isAndroid){
                 setTimeout(()=>{

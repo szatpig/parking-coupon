@@ -9,6 +9,7 @@
 </template>
 
 <script>
+    import { couponDetail } from '@/api/merchant-api'
     export default {
         name: "scan",
         data() {
@@ -17,13 +18,27 @@
         components: {},
         methods: {
             handleScan(){
+                // this.getDetail(30193)
+                // return false;
                 wx.scanQRCode({
                     needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
                     scanType: ["qrCode"], // 可以指定扫二维码还是一维码，默认二者都有
                     success: (data) => { // 当needResult 为 1 时，扫码返回的结果
-                        let result = data.resultStr;
+                        this.getDetail(data.resultStr)
                     }
                 });
+            },
+            getDetail(id){
+                let _data ={
+                    id
+                }
+                couponDetail(_data).then(() => {
+                    this.$router.push({
+                        path:`coupon/${ id }`
+                    });
+                }).catch(e =>{
+
+                })
             },
             handleLink(){
                 this.$router.push('record')

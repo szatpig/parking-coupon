@@ -32,6 +32,7 @@ const wxShare = async() =>{
             'hideAllNonBaseMenuItem',
             'showMenuItems',
             'closeWindow',
+            'scanQRCode'
         ] // 必填，需要使用的JS接口列表
     });
     wx.error((res) => {

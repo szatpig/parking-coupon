@@ -15,7 +15,11 @@
                 <template #title>
                     <div class="cell-top flex">
                         <div class="flex">
-                            <span>￥<i>{{ item.couponAmount }}</i></span>
+                            <span class="discount" v-if="item.couponType === 'DISCOUNT_DEDUCT'">
+                                8<i>折</i>
+                                <em>上限 {{ item.couponAmount }} 元</em>
+                            </span>
+                            <span v-else>￥<i>{{ item.couponAmount }}</i></span>
                             <div class="cell-txt">
                                 <p>{{ item.plateNo }} <i>{{ picker.columns[item.plateColor] }}</i></p>
                                 <p>{{ item.expirationTime }} 到期</p>
@@ -64,16 +68,16 @@
             <div class="popup-equity">
                 <div class="popup-header">
                     <p>{{ qrCode.data.plateNo }}</p>
-                    <p v-if="qrCode.data.couponType === 'DISCOUNT_DEDUCT'">8折停车券 <i>（上限100元）</i></p>
-                    <p v-else>400元优惠券</p>
-                    <p><img src="../../images/scan.png" /></p>
+                    <p v-if="qrCode.data.couponType === 'DISCOUNT_DEDUCT'">8折停车券 <i>（上限{{ qrCode.data.couponAmount }} 元）</i></p>
+                    <p v-else>{{ qrCode.data.couponAmount }} 元优惠券</p>
+                    <p><img :src="`${ imgUrl }/customerCouponUseDetails/getCouponQrCodeImage?token=${ userToken }&couponType=${ qrCode.data.couponType }&couponId=${ qrCode.data.id }`" /></p>
                 </div>
                 <div class="popup-content">
                     <van-row>
                         <van-col span="7">停车券码</van-col>
                         <van-col span="17">{{ qrCode.data.couponNo }}</van-col>
                         <van-col span="7">可用停车场</van-col>
-                        <van-col span="17">{{ qrCode.data.parkingName }}</van-col>
+                        <van-col span="17">{{ qrCode.data.parkingNames }}</van-col>
                     </van-row>
                 </div>
             </div>
@@ -82,7 +86,9 @@
 </template>
 
 <script>
-    import { couponList,couponUseRecord } from '@/api/coupons-api'
+    import config from '@@/config'
+    import { mapState } from  'vuex'
+    import { couponList,couponUseRecord, loopStatus } from '@/api/coupons-api'
     export default {
         name: "coupons",
         data() {
@@ -112,12 +118,14 @@
                     columns:['蓝色','黄色','黑色','白色','渐变绿色','黄绿双拼色','蓝白渐变色'],
                     data:''
                 },
+                imgUrl:config.api,
                 pageIndex:1,
                 dataList: [],
                 tempIndex:-1,
                 refreshing:false,
                 loading: false,
                 finished: false,
+                timeInstance:null
             }
         },
         components: {},
@@ -136,41 +144,36 @@
             },
             handleQrCode(item){
                 this.qrCode.data = {
-                    id:1,
-                    plateNo:'苏E11TL2',
-                    couponType:'FIX_DEDUCT',
-                    couponNo:'877661ge267765abf222',
-                    parkingName:'苏州工业园区纳米大学产业园停车场、苏州生命之源停车场、苏州湾停车场，苏州中心停车场，苏州园区地园区、苏州北站停车场'
+                        ...item
                 }
                 this.$router.push({
                     query:{
-                        result:'TIME_DEDUCT'
+                        result:item.couponType
                     }
                 });
-                return false;
-                let { couponType,couponNo } = item
-                let _data ={
-                    couponType,
-                    couponNo
-                }
-                couponUseRecord(_data).then(data => {
-                    this.qrCode.data = {
-                         ...item,
-                        img:data.data
-                    };
-                    if(data.data.id){
-                        this.qrCode.show = true;
-                        this.$router.push({
-                            query:{
-                                result:couponType
-                            }
-                        });
-                    }
-                })
+
+               this.timeInstance =  setInterval(() => {
+                    this.loopCheckStatus(item.id)
+                },5000)
 
                     // FIX_DEDUCT:'固定抵扣金额券',
                     // DISCOUNT_DEDUCT:'按比例折扣',
                     // TIME_DEDUCT:'次数抵扣',
+            },
+            loopCheckStatus(couponId){
+                let _data ={
+                    couponId
+                }
+                loopStatus(_data).then(data => {
+                    if(data.data.couponStatus === 2){
+                        clearInterval(this.timeInstance);
+                        this.$toast.success('核销成功');
+                        this.$router.replace('/home/user/coupons')
+                    }
+                }).catch(()=>{
+                    clearInterval(this.timeInstance);
+                })
+
             },
             handlePicker(customerCouponId){
                 let _data ={
@@ -230,12 +233,18 @@
                 }else if(to.query.result){
                     this.qrCode.show = true;
                 }else{
+                    clearInterval(this.timeInstance);
                     this.picker.show = false;
                     this.qrCode.show = false;
                 }
             }
         },
-        computed: {},
+        computed: {
+            ...mapState({
+                userToken: state => state.user.userToken
+                // menuList: state =>state.title.menuList
+            }),
+        },
         created() {
             let { type,result } = this.$route.query;
             if(type){
@@ -370,9 +379,24 @@
                             font-weight: bold;
                             padding-right: 32px;
                             min-width: 140px;
+                            &.discount{
+                                text-align: center;
+                                font-size: 48px;
+                                i{
+                                    font-size: 20px;
+                                    margin-left: 2px;
+                                }
+                            }
                             i{
                                 margin-left: 4px;
                                 font-size: 48px;
+                            }
+                            em{
+                                display: block;
+                                width: 100%;
+                                font-size: 22px;
+                                color: #909499;
+                                font-weight: normal;
                             }
                         }
                     }

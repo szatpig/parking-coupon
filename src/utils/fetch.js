@@ -107,8 +107,12 @@ export default function fetch (url, options) {
                             }).then(() => {
                                 // on close
                                 sessionStorage.setItem('code_2001',0);
+                                location.href.indexOf('/merchant') > -1 ?
                                 router.push({
-                                    path:'/login',
+                                    path: '/merchant/login'
+                                }) :
+                                router.push({
+                                    path: '/login',
                                     query:{
                                         openId:store.state.user.openId
                                     }

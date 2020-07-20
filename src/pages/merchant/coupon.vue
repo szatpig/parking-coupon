@@ -1,7 +1,8 @@
 <template>
     <div class="merchant-coupon-container">
         <div class="coupon-header">
-            <p>8折停车券（上限100元）</p>
+            <p class="discount" v-if="coupon.couponType === 'DISCOUNT_DEDUCT'">8折停车券（上限{{ coupon.couponAmount }}元）</p>
+            <p v-else>{{ coupon.couponAmount }} 元优惠券</p>
             <p class="amount-wrapper" @click="handleInput">停车总额 <i>{{ amount || '请输入金额' }}</i>  元</p>
         </div>
         <div class="popup-coupon">
@@ -11,13 +12,15 @@
                     <van-col span="17">{{ coupon.plateNo || '--' }}<i>{{ columns[coupon.plateColor] }}</i></van-col>
                     <van-col span="7">停车券码</van-col>
                     <van-col span="17">{{coupon.couponNo || '--' }}</van-col>
-                    <van-col span="7">停车券类型</van-col>
-                    <van-col span="17">{{ coupon.equityGrantTime || '--'}}</van-col>
-                    <van-col span="7">核销时间</van-col>
-                    <van-col span="17">{{ coupon.expirationTime || '--'}}</van-col>
+                    <van-col span="7">可用停车场</van-col>
+                    <van-col span="17" style="max-height: 150px;overflow-y: auto">{{ coupon.parkingNames || '--'}}</van-col>
+                    <van-col span="7">核销金额</van-col>
+                    <van-col span="17">{{ coupon.verifyAmount || '--'}} 元</van-col>
+                    <van-col span="7">还需支付</van-col>
+                    <van-col span="17">{{ coupon.actualPaidAmount || '--'}} 元</van-col>
                 </van-row>
                 <van-button
-                        :disabled="!!!amount"
+                        :disabled="amount - 0 < 1"
                         class="check-submit"
                         size="large"
                         round
@@ -26,18 +29,40 @@
         </div>
         <van-popup class="popup-container" v-model="popup.show" position="right" >
             <div class="popup-result">
-                <p class="status fail"><van-icon name="fail" /></p>
-                <p class="status-text">核销失败</p>
-                <p class="status-tips">停车券已过期/已被撤销/已使用</p>
-                <p class="status-button">
-                    <van-button
-                            class="check-submit"
-                            size="large"
-                            round
-                            @click="handleScan">重新扫码</van-button>
+                <p class="status" :class="result.status == true? 'success': 'fail'">
+                    <van-icon :name="result.status == true? 'success': 'fail'" />
                 </p>
-
-                <p class="status-back"><router-link to="/merchant/scan">返回首页</router-link></p>
+                <p class="status-text">核销{{ result.status == true ? '成功':'失败' }}</p>
+                <p class="status-tips">
+                    <template  v-if="result.status == true">
+                        <template v-if="coupon.couponType === 'FIX_DEDUCT'">
+                            已核销{{ coupon.couponAmount }}元
+                        </template>
+                        <template v-else>
+                            已核销{{ result.verifyAmount }}元，还需支付{{ result.actualPaidAmount }}元
+                        </template>
+                    </template>
+                    <template v-else>
+                        {{ result.msg }}
+                    </template>
+                </p>
+                <p class="status-button">
+                    <template v-if="result.status == true">
+                        <van-button
+                                class="check-submit"
+                                size="large"
+                                round
+                                @click="$router.push('/merchant/scan')">完成</van-button>
+                    </template>
+                    <template v-else>
+                        <van-button
+                                class="check-submit"
+                                size="large"
+                                round
+                                @click="handleScan">重新扫码</van-button>
+                    </template>
+                </p>
+                <p class="status-back" v-if="result.status == false"><router-link to="/merchant/scan">返回首页</router-link></p>
             </div>
         </van-popup>
         <van-number-keyboard
@@ -53,6 +78,7 @@
 </template>
 
 <script>
+    import { couponDetail, getHumanVerifyInfo, verifyCoupon } from '@/api/merchant-api'
     export default {
         name: "coupon",
         data() {
@@ -61,11 +87,25 @@
                 amount: '',
                 columns:['蓝色','黄色','黑色','白色','渐变绿色','黄绿双拼色','蓝白渐变色'],
                 coupon:{
-
+                    couponNo:'',
+                    discount:'',
+                    couponType:'',
+                    plateNo:'',
+                    plateColor:'',
+                    couponAmount:'',
+                    parkingNames:'',
+                    verifyAmount:0,
+                    actualPaidAmount:0
                 },
                 popup:{
                     show:false,
                     data:'',
+                },
+                result:{
+                    status:'',
+                    msg:'--',
+                    verifyAmount:'',
+                    actualPaidAmount:''
                 }
             }
         },
@@ -76,16 +116,100 @@
             },
             handleDone() {
                 this.show = false;
-                if(this.amount){
-
+                if(parseInt(this.amount) > 0){
+                    let _data ={
+                        couponId:this.$route.params.couponId,
+                        parkingAmount:this.amount
+                    }
+                    getHumanVerifyInfo(_data).then(data => {
+                        this.coupon = {
+                            ...this.coupon,
+                            ...data.data
+                        }
+                    })
+                }else{
+                    this.amount = '';
+                    this.coupon.verifyAmount = 0;
+                    this.coupon.actualPaidAmount = 0
                 }
             },
             handleCheck(){
-
+                let _data ={
+                    couponId:this.$route.params.couponId,
+                    parkingAmount:this.amount
+                }
+                verifyCoupon(_data).then(data => {
+                    this.result = {
+                        ...this.result,
+                        ...data.data,
+                        status:true
+                    }
+                    this.$router.replace({
+                        query:{
+                            result: true
+                        }
+                    })
+                }).catch((err)=>{
+                    console.log(err)
+                    this.result = {
+                        ...this.result,
+                        msg:err.msg,
+                        status:false
+                    }
+                    this.$router.replace({
+                        query:{
+                            result: false
+                        }
+                    })
+                })
+            },
+            getDetail(id){
+                let _data ={
+                    id
+                }
+                couponDetail(_data).then(data => {
+                    this.coupon = {
+                        ...this.coupon,
+                        ...data.data
+                    }
+                })
+            },
+            handleScan(){
+                // this.$router.replace({
+                //     path:`/merchant/coupon/39194`
+                // });
+                // return false;
+                wx.scanQRCode({
+                    needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+                    scanType: ["qrCode"], // 可以指定扫二维码还是一维码，默认二者都有
+                    success: (data) => { // 当needResult 为 1 时，扫码返回的结果
+                        this.$router.replace({
+                            path:`/merchant/coupon/${ data.resultStr }`
+                        });
+                    }
+                });
+            },
+        },
+        watch: {
+            '$route' (to, from) {
+                // 对路由变化作出响应...
+                if(to.query.result !== undefined){
+                    document.title = 'ETC停车场 - 核销结果';
+                    this.popup.show = true;
+                }else{
+                    document.title = 'ETC停车场 - 核销确认';
+                    this.popup.show = false;
+                }
             }
         },
         computed: {},
         created() {
+            let { couponId } = this.$route.params;
+            this.getDetail(couponId);
+            if(this.$route.query.result !== undefined){
+                this.popup.show = false;
+                this.$router.replace('/merchant/coupon/' + couponId)
+            }
         }
     }
 </script>

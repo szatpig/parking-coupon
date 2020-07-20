@@ -35,7 +35,7 @@ const merchantRoutes = [
                 }
             },
             {
-                path:'coupon/:couponType/:couponId',
+                path:'coupon/:couponId',
                 component:Coupon,
                 name:'coupon',
                 meta:{

@@ -9,6 +9,10 @@ export const couponUseRecord = (data)=> fetch(api.api + '/customerCouponUseDetai
     data
 });
 
+export const loopStatus = (data)=> fetch(api.api + '/customerCouponUseDetails/getCouponStatusById',{
+    data
+});
+
 export const customerCarsAndEquity = (params)=> fetch(api.api + '/customerEquityUseDetails/queryOwnerEquity',{
     type:'get',
     params

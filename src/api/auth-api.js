@@ -15,6 +15,11 @@ export const openIdLogin= (data)=> fetch(api.api + '/loginByOpenId',{
     data
 });
 
+//验证码登录
+export const userLogout = ()=> fetch(api.api+ `/logout`,{
+    type:'get'
+});
+
 
 //用户注册
 export const userRegister = (data)=> fetch(api.api + '/register',{
@@ -26,7 +31,7 @@ export const sendSms = (data)=> fetch(api.api+ `/sendCode`,{
     data
 });
 
-//设置呼叫转移状态
-export const userLogout = (data)=> fetch(api.api+ `/logout`,{
-    type:'get'
+//商户登录
+export const merchantLogin = (data)=> fetch(api.api+ `/commercialLogin`,{
+    data
 });

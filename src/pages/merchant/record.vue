@@ -8,36 +8,31 @@
                 <span @click="handlePicker('end')">{{ search.end || '结束时间' }}</span>
             </div>
         </div>
-        <div class="coupon-list">
+        <van-list
+                class="coupon-list"
+                v-model="loading"
+                :finished="finished"
+                offset="50"
+                finished-text="没有更多了"
+                @load="onLoad">
             <van-index-bar :index-list="[]">
-                <van-index-anchor index="2019" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00"  @click="handleShow({ id: 1 })"/>
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" /><van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-
-
-
-                <van-index-anchor index="2020" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
-                <van-cell center title="苏E8F2S8" label="今天  14:22:21" value="20.00" />
+                <template v-for="keys in Object.keys(dataList)">
+                    <van-index-anchor :index="keys" />
+                    <van-cell v-for="item in dataList[keys]"
+                              :key="dataList[keys].id"
+                              center
+                              :title="item.plateNo"
+                              :label="callRecordTime(item.verifyTime.replace(/-/g,'/')).join(' ')"
+                              :value="item.verifyAmount"
+                              @click="handleShow(item)"/>
+                </template>
             </van-index-bar>
-        </div>
+        </van-list>
         <van-popup class="popup-container" v-model="popup.show" position="right" >
             <div class="popup-record">
                 <div class="popup-title">
                     <span>核销金额</span>
-                    <p>{{ popup.data.industryUser || '--' }}</p>
+                    <p>{{ popup.data.verifyAmount || '--' }}</p>
                 </div>
                 <div class="popup-content">
                     <van-row>
@@ -46,9 +41,9 @@
                         <van-col span="7">停车券码</van-col>
                         <van-col span="17">{{ popup.data.couponNo }}</van-col>
                         <van-col span="7">停车券类型</van-col>
-                        <van-col span="17">{{ popup.data.equityGrantTime }}</van-col>
+                        <van-col span="17">{{ popup.data.verifyType }}</van-col>
                         <van-col span="7">核销时间</van-col>
-                        <van-col span="17">{{ popup.data.expirationTime }}</van-col>
+                        <van-col span="17">{{ popup.data.verifyTime }}</van-col>
                     </van-row>
                 </div>
             </div>
@@ -68,7 +63,8 @@
 </template>
 
 <script>
-    import { transDate } from '@/utils/util'
+    import { transDate,callRecordTime } from '@/utils/util'
+    import { recordList } from '@/api/merchant-api'
     export default {
         name: "record",
         data() {
@@ -88,7 +84,14 @@
                 popup:{
                     show:false,
                     data:'',
-                }
+                },
+                dataList:{},
+                pageIndex:1,
+                currentTotal:0,
+                refreshing:false,
+                loading: false,
+                finished: false,
+                callRecordTime:callRecordTime
             }
         },
         components: {},
@@ -122,6 +125,55 @@
                 console.log(val,index)
                 this.picker.show = false;
                 this.search[this.picker.type] = transDate(val) ;
+                this.refreshing = true;
+                this.onLoad()
+            },
+            onLoad() {
+                if (this.refreshing) {
+                    this.dataList = {};
+                    this.refreshing = false;
+                    this.pageIndex = 1;
+                    this.currentTotal = 0;
+                }
+                this.list(this.pageIndex)
+            },
+            list(pageNum,pageSize = 8){
+                let  { start ,end } = this.search
+                let _data ={
+                    startTime: start &&start + ' 00:00:00' || '',
+                    endTime: end &&end + ' 23:59:59' || '',
+                    pageNum,
+                    pageSize
+                };
+
+                recordList(_data).then(data=>{
+                    setTimeout(()=>{
+                        data.data.list.map(item => {
+                            if(this.dataList[item.verifyTime.slice(0,4)] && this.dataList[item.verifyTime.slice(0,4)].length){
+                                this.dataList[item.verifyTime.slice(0,4)].push(item)
+                            }else{
+                                this.dataList[item.verifyTime.slice(0,4)]= [item]
+                            }
+                        })
+                        this.currentTotal += data.data.list.length;
+
+                        if(this.currentTotal >= data.data.total){
+                            this.finished = true;
+                        }else{
+                            this.finished = false;
+                        }
+
+                        this.pageIndex ++ ;
+                        this.error = false;
+                        this.loading = false;
+                    },100)
+
+                }).catch(e =>{
+                    this.loading = false;
+                    this.error = true;
+                    this.finished = true;
+                    console.log(e);
+                })
             }
         },
         watch: {
@@ -165,6 +217,7 @@
         justify-content: flex-start;
         .coupon-header{
             height: 200px;
+            z-index: 10;
             background: linear-gradient(90deg, #2196F3 0%, #2270E4 100%);
             color: #fff;
             text-align: center;
@@ -188,7 +241,17 @@
         .coupon-list{
             height:calc(100% - 200px);
             position: relative;
+            z-index: 9;
             overflow-y: auto;
+            .van-cell__title{
+                &>span{
+                    font-size: 28px;
+                }
+            }
+            .van-cell__value{
+                font-size: 32px;
+                color: #293547;
+            }
         }
     }
     .popup-record{

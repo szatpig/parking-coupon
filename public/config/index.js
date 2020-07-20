@@ -25,13 +25,15 @@ if(process.env.NODE_ENV === 'production'){
         wex:'',
         authorUrl:'',
         audioUrl: 'http://192.168.0.11:9000/audio/',        //dev 本地audio地址
+        imgUrl:'http://192.168.88.51'
     }
 }else{
     api_config={
         api:'/api'+ process.env.VUE_APP_PREFIX,
         wex:'/wex',
         authorUrl:'',
-        audioUrl:'http://192.168.0.11:9000/audio/'
+        audioUrl:'http://192.168.0.11:9000/audio/',
+        imgUrl:'http://192.168.88.51'+ process.env.VUE_APP_PREFIX
     };
 }
 
