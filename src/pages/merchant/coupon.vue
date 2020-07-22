@@ -1,8 +1,10 @@
 <template>
     <div class="merchant-coupon-container">
         <div class="coupon-header">
-            <p class="discount" v-if="coupon.couponType === 'DISCOUNT_DEDUCT'">8折停车券（上限{{ coupon.couponAmount }}元）</p>
-            <p v-else>{{ coupon.couponAmount }} 元优惠券</p>
+            <p class="discount" v-if="coupon.couponType === 'DISCOUNT_DEDUCT'">
+                {{(coupon.discount*100).toString().replace('0','') }}折折扣券（上限{{ coupon.couponAmount }}元）
+            </p>
+            <p v-else>{{ coupon.couponAmount }} 元{{ couponListType[coupon.couponType] }}</p>
             <p class="amount-wrapper" @click="handleInput">停车总额 <i>{{ amount || '请输入金额' }}</i>  元</p>
         </div>
         <div class="popup-coupon">
@@ -97,6 +99,11 @@
                     verifyAmount:0,
                     actualPaidAmount:0
                 },
+                couponListType:{
+                    FIX_DEDUCT:'金额券',
+                    DISCOUNT_DEDUCT:'折扣券',
+                    TIME_DEDUCT:'次数券',
+                },
                 popup:{
                     show:false,
                     data:'',
@@ -149,8 +156,10 @@
                             result: true
                         }
                     })
+                    this.amount = '';
+                    this.coupon.verifyAmount = 0;
+                    this.coupon.actualPaidAmount = 0
                 }).catch((err)=>{
-                    console.log(err)
                     this.result = {
                         ...this.result,
                         msg:err.msg,
@@ -161,6 +170,9 @@
                             result: false
                         }
                     })
+                    this.amount = '';
+                    this.coupon.verifyAmount = 0;
+                    this.coupon.actualPaidAmount = 0
                 })
             },
             getDetail(id){
@@ -175,10 +187,6 @@
                 })
             },
             handleScan(){
-                // this.$router.replace({
-                //     path:`/merchant/coupon/39194`
-                // });
-                // return false;
                 wx.scanQRCode({
                     needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
                     scanType: ["qrCode"], // 可以指定扫二维码还是一维码，默认二者都有
@@ -197,14 +205,17 @@
                     document.title = 'ETC停车场 - 核销结果';
                     this.popup.show = true;
                 }else{
+                    // this.getDetail(to.params.couponId)
                     document.title = 'ETC停车场 - 核销确认';
                     this.popup.show = false;
+                    this.getDetail(to.params.couponId);
                 }
             }
         },
         computed: {},
         created() {
             let { couponId } = this.$route.params;
+            console.log('couponId',couponId)
             this.getDetail(couponId);
             if(this.$route.query.result !== undefined){
                 this.popup.show = false;

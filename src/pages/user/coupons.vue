@@ -16,17 +16,17 @@
                     <div class="cell-top flex">
                         <div class="flex">
                             <span class="discount" v-if="item.couponType === 'DISCOUNT_DEDUCT'">
-                                8<i>折</i>
+                                {{(item.discount*100).toString().replace('0','') }}<i>折</i>
                                 <em>上限 {{ item.couponAmount }} 元</em>
                             </span>
                             <span v-else>￥<i>{{ item.couponAmount }}</i></span>
                             <div class="cell-txt">
                                 <p>{{ item.plateNo }} <i>{{ picker.columns[item.plateColor] }}</i></p>
-                                <p>{{ item.expirationTime }} 到期</p>
+                                <p>{{ couponListType[item.couponType] }}  {{ item.expirationTime }} 到期</p>
                             </div>
                         </div>
                         <van-icon class="qr-code" v-if="tabName == 1" name="qr" @click="handleQrCode(item)" />
-                        <van-button v-if="tabName == 2" round size="mini" @click="handlePicker(item.id)">停车记录<van-icon name="arrow" /></van-button>
+                        <van-button v-if="tabName == 2 && item.verifyWay == 0" round size="mini" @click="handlePicker(item.id)">停车记录<van-icon name="arrow" /></van-button>
                     </div>
                     <div class="cell-bottom flex" @click.stop="handleCollapse(item.id)">
                         <div class="cell-bottom-left" :class="{ active: tempIndex == item.id }">
@@ -68,8 +68,8 @@
             <div class="popup-equity">
                 <div class="popup-header">
                     <p>{{ qrCode.data.plateNo }}</p>
-                    <p v-if="qrCode.data.couponType === 'DISCOUNT_DEDUCT'">8折停车券 <i>（上限{{ qrCode.data.couponAmount }} 元）</i></p>
-                    <p v-else>{{ qrCode.data.couponAmount }} 元优惠券</p>
+                    <p v-if="qrCode.data.couponType === 'DISCOUNT_DEDUCT'">{{ (qrCode.data.discount*100).toString().replace('0','') }}折折扣券 <i>（上限{{ qrCode.data.couponAmount }} 元）</i></p>
+                    <p v-else>{{ qrCode.data.couponAmount }}元{{ couponListType[qrCode.data.couponType] }}</p>
                     <p><img :src="`${ imgUrl }/customerCouponUseDetails/getCouponQrCodeImage?token=${ userToken }&couponType=${ qrCode.data.couponType }&couponId=${ qrCode.data.id }`" /></p>
                 </div>
                 <div class="popup-content">
@@ -117,6 +117,11 @@
                     show:false,
                     columns:['蓝色','黄色','黑色','白色','渐变绿色','黄绿双拼色','蓝白渐变色'],
                     data:''
+                },
+                couponListType:{
+                    FIX_DEDUCT:'金额券',
+                    DISCOUNT_DEDUCT:'折扣券',
+                    TIME_DEDUCT:'次数券',
                 },
                 imgUrl:config.api,
                 pageIndex:1,
@@ -169,6 +174,7 @@
                         clearInterval(this.timeInstance);
                         this.$toast.success('核销成功');
                         this.$router.replace('/home/user/coupons')
+                        this.handleTab();
                     }
                 }).catch(()=>{
                     clearInterval(this.timeInstance);

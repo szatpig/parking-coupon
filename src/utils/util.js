@@ -40,7 +40,6 @@ export function transDate(timestamp) {
     let mstr = `0${month}`.slice(-2);
     let day = date.getDate();
     let dstr =  `0${day}`.slice(-2) ;
-    console.log('date4',date,timestamp,`${year}-${mstr}-${dstr}`)
     return `${year}-${mstr}-${dstr}`;
 }
 
