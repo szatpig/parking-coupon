@@ -16,15 +16,15 @@
                 finished-text="没有更多了"
                 @load="onLoad">
             <van-index-bar :index-list="[]">
-                <template v-for="keys in Object.keys(dataList)">
-                    <van-index-anchor :index="keys" />
-                    <van-cell v-for="item in dataList[keys]"
-                              :key="dataList[keys].id"
-                              center
-                              :title="item.plateNo"
-                              :label="callRecordTime(item.verifyTime.replace(/-/g,'/')).join(' ')"
-                              :value="item.verifyAmount"
-                              @click="handleShow(item)"/>
+                <template v-for="(item) in dataList">
+                    <van-index-anchor v-if="item.date" :index="item.verifyTime.slice(0,4)" />
+                    <van-cell
+                        :key="item.id"
+                        center
+                        :title="item.plateNo"
+                        :label="callRecordTime(item.verifyTime.replace(/-/g,'/')).join(' ')"
+                        :value="item.verifyAmount"
+                        @click="handleShow(item)"/>
                 </template>
             </van-index-bar>
         </van-list>
@@ -85,13 +85,18 @@
                     show:false,
                     data:'',
                 },
-                dataList:{},
+                dataList:[],
                 pageIndex:1,
                 currentTotal:0,
                 refreshing:false,
                 loading: false,
                 finished: false,
-                callRecordTime:callRecordTime
+                callRecordTime:callRecordTime,
+                items:{
+                    2020:0,
+                    2019:1,
+                    2018:2
+                }
             }
         },
         components: {},
@@ -130,50 +135,91 @@
             },
             onLoad() {
                 if (this.refreshing) {
-                    this.dataList = {};
+                    this.dataList = [];
                     this.refreshing = false;
                     this.pageIndex = 1;
                     this.currentTotal = 0;
                 }
                 this.list(this.pageIndex)
             },
-            list(pageNum,pageSize = 8){
+            async list(pageNum,pageSize = 12){
                 let  { start ,end } = this.search
                 let _data ={
-                    startTime: start &&start + ' 00:00:00' || '',
-                    endTime: end &&end + ' 23:59:59' || '',
+                    startTime: start && start + ' 00:00:00' || '',
+                    endTime: end && end + ' 23:59:59' || '',
                     pageNum,
                     pageSize
-                };
+                },data = [],date = [];
 
-                recordList(_data).then(data=>{
-                    setTimeout(()=>{
-                        data.data.list.map(item => {
-                            if(this.dataList[item.verifyTime.slice(0,4)] && this.dataList[item.verifyTime.slice(0,4)].length){
-                                this.dataList[item.verifyTime.slice(0,4)].push(item)
-                            }else{
-                                this.dataList[item.verifyTime.slice(0,4)]= [item]
-                            }
-                        })
-                        this.currentTotal += data.data.list.length;
+                try {
+                    data = await recordList(_data)
+                    // data.data.list.map(item => {
+                    //     if(this.dataList[this.items[item.verifyTime.slice(0,4)]] && this.dataList[this.items[item.verifyTime.slice(0,4)]].length){
+                    //         this.dataList[this.items[item.verifyTime.slice(0,4)]].push(item)
+                    //     }else{
+                    //         this.dataList[this.items[item.verifyTime.slice(0,4)]]= [item]
+                    //     }
+                    // })
+                    // this.currentTotal += data.data.list.length;
+                    //
+                    // if(this.currentTotal >= data.data.total){
+                    //     this.finished = true;
+                    // }else{
+                    //     this.finished = false;
+                    // }
+                    //
+                    // this.pageIndex ++ ;
 
-                        if(this.currentTotal >= data.data.total){
-                            this.finished = true;
-                        }else{
-                            this.finished = false;
+                    this.pageIndex ++;
+                    this.dataList = [...this.dataList,...data.data.list].map((item) => {
+                        if(!date.includes(item.verifyTime.slice(0,4))){
+                            date.push(item.verifyTime.slice(0,4))
+                            item.date = item.verifyTime.slice(0,4)
+                            return item
                         }
+                        return item;
+                    });
+                    if(this.dataList.length >= data.data.total){
+                        this.finished = true;
+                    }else{
+                        this.finished = false;
+                    }
 
-                        this.pageIndex ++ ;
-                        this.error = false;
-                        this.loading = false;
-                    },100)
-
-                }).catch(e =>{
+                    this.error = false;
+                    this.loading = false;
+                }catch (e) {
                     this.loading = false;
                     this.error = true;
                     this.finished = true;
-                    console.log(e);
-                })
+                }
+                // recordList(_data).then(data=>{
+                //     setTimeout(()=>{
+                //         data.data.list.map(item => {
+                //             if(this.dataList[item.verifyTime.slice(0,4)] && this.dataList[item.verifyTime.slice(0,4)].length){
+                //                 this.dataList[item.verifyTime.slice(0,4)].push(item)
+                //             }else{
+                //                 this.dataList[item.verifyTime.slice(0,4)]= [item]
+                //             }
+                //         })
+                //         this.currentTotal += data.data.list.length;
+                //
+                //         if(this.currentTotal >= data.data.total){
+                //             this.finished = true;
+                //         }else{
+                //             this.finished = false;
+                //         }
+                //
+                //         this.pageIndex ++ ;
+                //         this.error = false;
+                //         this.loading = false;
+                //     },1000)
+                //
+                // }).catch(e =>{
+                //     this.loading = false;
+                //     this.error = true;
+                //     this.finished = true;
+                //     console.log(e);
+                // })
             }
         },
         watch: {
@@ -216,7 +262,7 @@
         flex-flow: column nowrap;
         justify-content: flex-start;
         .coupon-header{
-            height: 200px;
+            flex: 0 0 200px;
             z-index: 10;
             background: linear-gradient(90deg, #2196F3 0%, #2270E4 100%);
             color: #fff;
@@ -240,9 +286,7 @@
         }
         .coupon-list{
             height:calc(100% - 200px);
-            position: relative;
-            z-index: 9;
-            overflow-y: auto;
+            overflow: hidden auto;
             .van-cell__title{
                 &>span{
                     font-size: 28px;

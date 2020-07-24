@@ -11,7 +11,7 @@ const externals = {
     'vuex':'Vuex',
     'axios':'axios',
     'vant':'vant',
-    'vue2-dragula':'vueDragula'
+    // 'vue2-dragula':'vueDragula'
 }
 
 
