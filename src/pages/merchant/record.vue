@@ -91,12 +91,7 @@
                 refreshing:false,
                 loading: false,
                 finished: false,
-                callRecordTime:callRecordTime,
-                items:{
-                    2020:0,
-                    2019:1,
-                    2018:2
-                }
+                callRecordTime:callRecordTime
             }
         },
         components: {},
@@ -153,23 +148,6 @@
 
                 try {
                     data = await recordList(_data)
-                    // data.data.list.map(item => {
-                    //     if(this.dataList[this.items[item.verifyTime.slice(0,4)]] && this.dataList[this.items[item.verifyTime.slice(0,4)]].length){
-                    //         this.dataList[this.items[item.verifyTime.slice(0,4)]].push(item)
-                    //     }else{
-                    //         this.dataList[this.items[item.verifyTime.slice(0,4)]]= [item]
-                    //     }
-                    // })
-                    // this.currentTotal += data.data.list.length;
-                    //
-                    // if(this.currentTotal >= data.data.total){
-                    //     this.finished = true;
-                    // }else{
-                    //     this.finished = false;
-                    // }
-                    //
-                    // this.pageIndex ++ ;
-
                     this.pageIndex ++;
                     this.dataList = [...this.dataList,...data.data.list].map((item) => {
                         if(!date.includes(item.verifyTime.slice(0,4))){
@@ -192,34 +170,6 @@
                     this.error = true;
                     this.finished = true;
                 }
-                // recordList(_data).then(data=>{
-                //     setTimeout(()=>{
-                //         data.data.list.map(item => {
-                //             if(this.dataList[item.verifyTime.slice(0,4)] && this.dataList[item.verifyTime.slice(0,4)].length){
-                //                 this.dataList[item.verifyTime.slice(0,4)].push(item)
-                //             }else{
-                //                 this.dataList[item.verifyTime.slice(0,4)]= [item]
-                //             }
-                //         })
-                //         this.currentTotal += data.data.list.length;
-                //
-                //         if(this.currentTotal >= data.data.total){
-                //             this.finished = true;
-                //         }else{
-                //             this.finished = false;
-                //         }
-                //
-                //         this.pageIndex ++ ;
-                //         this.error = false;
-                //         this.loading = false;
-                //     },1000)
-                //
-                // }).catch(e =>{
-                //     this.loading = false;
-                //     this.error = true;
-                //     this.finished = true;
-                //     console.log(e);
-                // })
             }
         },
         watch: {
@@ -262,7 +212,7 @@
         flex-flow: column nowrap;
         justify-content: flex-start;
         .coupon-header{
-            flex: 0 0 200px;
+            height:200px;
             z-index: 10;
             background: linear-gradient(90deg, #2196F3 0%, #2270E4 100%);
             color: #fff;
@@ -286,7 +236,9 @@
         }
         .coupon-list{
             height:calc(100% - 200px);
-            overflow: hidden auto;
+            position: relative;
+            z-index: 9;
+            overflow-y: auto;
             .van-cell__title{
                 &>span{
                     font-size: 28px;
