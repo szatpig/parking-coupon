@@ -10,13 +10,14 @@ const externals = {
     'vue-router':'VueRouter',
     'vuex':'Vuex',
     'axios':'axios',
-    'vant':'vant'
+    'vant':'vant',
+    // 'vue2-dragula':'vueDragula'
 }
 
 
 module.exports = {
     publicPath: process.env.NODE_ENV === 'production'
-            ? `${ process.env.VUE_APP_PREFIX }/wapwx/wx/` //这里是打包正式配置 eg: outbound.ynt.ai:7001/crm/#/login
+            ? process.env.VUE_APP_ROOT //这里是打包正式配置 eg: outbound.ynt.ai:7001/crm/#/login
             : '/',
     outputDir:'docs',
     productionSourceMap: false,
@@ -24,6 +25,9 @@ module.exports = {
         config.externals(externals);
         config.resolve.extensions.merge(['.js', '.vue', '.json','.scss','.less']);
         config.resolve.alias.set('@@', path.resolve(__dirname,'./public'));
+        if(process.env.NODE_ENV==='production' && process.env.npm_config_report){
+            config.plugin('webpack-bundle-analyzer').use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
+        }
 
         config.module
                 .rule('svg')
@@ -55,7 +59,7 @@ module.exports = {
         }
     },
     pluginOptions: {
-      vconsole: { enable: process.env.VUE_APP_PREFIX != '' /* others... */ },
+      vconsole: { enable: true /* others... */ },
       'style-resources-loader': {
         preProcessor: 'less',
         patterns: [
@@ -66,23 +70,16 @@ module.exports = {
 
     devServer: {
         host: '0.0.0.0',
-        port: 4000,
+        port: 5000,
         https: false,
         hotOnly: false,
         // See https://github.com/vuejs/vue-cli/blob/dev/docs/cli-service.md#configuring-proxy
         proxy: {
-            // '/api': {
-            //     target: 'http://test-assistant.ynt.ai',
-            //     changeOrigin: true,
-            //     pathRewrite: {
-            //         '^/api': `/ydqa/YNT-AEGIS-CORE/core`            //接口请求代理
-            //     } 
-            // },
             '/api': {
-                target: 'http://192.168.0.11:8911',
+                target: 'http://192.168.88.51:8083',
                 changeOrigin: true,
                 pathRewrite: {
-                    '^/api': `/dc`            //本地run dev接口代理
+                    '^/api': ``            //本地run dev接口代理
                 }
             },
             '/common': {

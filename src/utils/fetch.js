@@ -17,8 +17,7 @@ axios.interceptors.request.use(
             if (store.state.user.userToken) {
                 config.headers.token = store.state.user.userToken
             }
-            config.headers["server-version"]="wx;" + api.version;
-            config.headers.userAgent = navigator.appVersion + ' LANGUAGE/'  + navigator.language + ' VERSION/' + api.version;
+            config.headers.userAgent = navigator.appVersion + ' LANGUAGE/'  + navigator.language + ' VERSION/' + process.env.VUE_APP_VERSION;
             //取消loading可在传参数里加入 { _loading:true }即可取消loading
             !config.data._loading && Vue.prototype.$toast({
                 type:'loading',
@@ -91,16 +90,13 @@ export default function fetch (url, options) {
             //设置超时时间
             timeout: opt.timeout || 30000
         }).then(response => {
-            if (parseInt(response.data.statusCode) === 0) {
+            if (response.data.status === 1000) {
                 resolve(response.data)
+            }else if(response.data.status === 0){
+                resolve(response.result)
             } else {
-                switch (parseInt(response.data.statusCode)) {
-                    case 2011:
-                        location.href = 'https://w.url.cn/s/A02CPn0';
-                        reject(response.data);
-                        break;
-                    case 8003:
-                    case 8004:
+                switch (response.data.status) {
+                    case 1001:
                         if(Number(sessionStorage.getItem('code_2001'))){
                             reject(response.data);
                         }else{
@@ -111,7 +107,17 @@ export default function fetch (url, options) {
                             }).then(() => {
                                 // on close
                                 sessionStorage.setItem('code_2001',0);
-                                wx.closeWindow();
+                                location.href.indexOf('/merchant') > -1 ?
+                                router.push({
+                                    path: '/merchant/login'
+                                }) :
+                                router.push({
+                                    path: '/login',
+                                    query:{
+                                        openId:store.state.user.openId
+                                    }
+                                })
+                                // wx.closeWindow();
                             });
                         }
                         reject(response.data);

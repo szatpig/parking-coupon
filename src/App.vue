@@ -8,14 +8,13 @@
 </template>
 
 <script>
-    import WxMixin from '@/mixins/wxMixin'
+    // import WxMixin from '@/mixins/wxMixin'
     export default {
-        name: 'app',
+        name: 'coupon',
         // mixins:[WxMixin],
         created() {
             sessionStorage.setItem('code_2001',0);
             sessionStorage.setItem('wx',0);
-            sessionStorage.setItem('recordReject',0) ;
         }
     }
 </script>

@@ -2,42 +2,58 @@
 import fetch from '@/utils/fetch'
 import api from '@@/config'
 
-//用户信息
-export const userInfo = (data)=> fetch(api.api + '/user/wxHome',{
-    type:'get'
+
+// car
+export const customerCarList = (params)=> fetch(api.api + '/customerCar/listByCustomerId',{
+    type:'get',
+    params
 });
 
-//用户信息
-export const getForwardTelInfo = (data)=> fetch(api.api + '/user/getForwardTelInfo',{
-    type:'get'
-});
-
-// 获取呼叫转移设置（APP/公众号使用）
-export const getCallForwardSetting = (data)=> fetch(api.api + '/user/getCallForwardSetting',{
-    type:'get'
-});
-
-// 更改呼叫转移设置（APP/公众号使用）
-export const changeCallForwardSetting = (data)=> fetch(api.api + '/user/changeCallForwardSetting',{
+export const customerCarInsert = (data)=> fetch(api.api + '/customerCar/insert',{
     data
 });
 
-// 完成引导（APP用）
-export const completeGuide = (params)=> fetch(api.api + '/user/completeGuide',{
-    type:'get'
-});
-
-// 添加或者修改反馈意见
-export const feedbackSave = (data)=> fetch(api.api + '/feedback/save',{
+export const customerCarDelete = (data)=> fetch(api.api + '/customerCar/delete',{
     data
 });
 
-//山东联通 - 获取用户推送方式
-export const getPushSetting = (data) => fetch(api.api + `/phoneUser/getPushSetting`, {
-    type: 'get'
-})
-
-//山东联通 - 切换用户推送方式
-export const changePushSetting = (data) => fetch(api.api + `/phoneUser/changePushSetting`, {
+export const customerCarUpdate = (data)=> fetch(api.api + '/customerCar/update',{
     data
-})
+});
+
+export const customerCarCouponList = (params)=> fetch(api.api + '/customerCar/listCouponOrderByStatus',{
+    type:'get',
+    params
+});
+
+export const receiveCoupons = (data)=> fetch(api.api + '/customerCar/receiveCoupons',{
+    data
+});
+
+//setting
+export const getByCustomerInfo = (params)=> fetch(api.api + '/equityVerifyPriority/getByCustomerId',{
+    type:'get',
+    params
+});
+
+export const getByCustomerInfoUpdate = (data)=> fetch(api.api + '/equityVerifyPriority/update',{
+    data
+});
+
+export const listIndustryEquity = (params)=> fetch(api.api + '/equityVerifyPriority/listIndustryEquity',{
+    type:'get',
+    params
+});
+
+export const resetPassword = (data)=> fetch(api.api + '/resetPassword',{
+    data
+});
+
+export const forgetPassword = (data)=> fetch(api.api + '/forgetPassword',{
+    data
+});
+
+export const verificationCode = (data)=> fetch(api.api + '/verificationCode',{
+    data
+});
+

@@ -37,9 +37,9 @@ export function transDate(timestamp) {
     let date = new Date(timestamp);
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
-    let mstr = month.toString().length == 1 ? month = `0${month}` : month;
+    let mstr = `0${month}`.slice(-2);
     let day = date.getDate();
-    let dstr = day.toString().length == 1 ? day = `0${day}` : day;
+    let dstr =  `0${day}`.slice(-2) ;
     return `${year}-${mstr}-${dstr}`;
 }
 
@@ -49,7 +49,7 @@ export function transTime(timestamp) {
     let minute = date.getMinutes();
     let sec = date.getSeconds();
     function format(params) {
-        return params.toString().length == 1 ? params = `0${params}` : params;
+        return `0${params}`.slice(-2) ;
     }
     return `${format(hour)}:${format(minute)}:${format(sec)}`;
 }
@@ -75,15 +75,15 @@ export function callRecordTime(callRecordTimestamp) {
     let now = transDate(new Date().getTime());
     let time = transDate(callRecordTimestamp);
     if (now === time) { // 今天呼入
-        return ['今天',transTime(callRecordTimestamp).slice(0, 5)];
+        return ['今天',transTime(callRecordTimestamp).slice(0, 8)];
     } else {
         // 昨天零点时间戳
         let yestoday = new Date(new Date().toLocaleDateString()).getTime() - 24 * 60 * 60 * 1000;
         // let today = new Date(yestoday).getTime();
         if (callRecordTimestamp >= yestoday) {
-            return ['昨天', transTime(callRecordTimestamp).slice(0, 5)]
+            return ['昨天', transTime(callRecordTimestamp).slice(0, 8)]
         } else {
-            return [transDate(callRecordTimestamp).slice(5), transTime(callRecordTimestamp).slice(0, 5)];
+            return [transDate(callRecordTimestamp), transTime(callRecordTimestamp).slice(0, 8)];
         }
     }
 }

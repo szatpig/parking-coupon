@@ -2,37 +2,29 @@
 // Created by szatpig at 2019/4/8.
 import Router from 'vue-router'
 import store from '@/vuex'
-import api from '@@/config'
+
+import wxShare from '@/utils/wechat'
+
+import merchantRoutes from './merchant-routes'
 
 //webpackChunkName 一定要写，是code split 后的命名 [ChunkName].[hash].js
 const Home = () => import(/* webpackChunkName: "home" */ '@/pages/home');
 
-const Account = () => import(/* webpackChunkName: "account" */ '@/pages/user/account');
-const User = () => import(/* webpackChunkName: "user'" */ '@/pages/user');
-const Union = () => import(/* webpackChunkName: "user'" */ '@/pages/user/union');
+const Coupon = () => import(/* webpackChunkName: "user" */ '@/pages/coupon');
 
-// const Author = () => import(/* webpackChunkName: "auth" */ '@/pages/auth/auth');
+const Parking = () => import(/* webpackChunkName: "user" */ '@/pages/parking');
+const Search = () => import(/* webpackChunkName: "user" */ '@/pages/parking/search');
+
+const User = () => import(/* webpackChunkName: "user" */ '@/pages/user');
+const Car = () => import(/* webpackChunkName: "car" */ '@/pages/user/car');
+const Setting = () => import(/* webpackChunkName: "car" */ '@/pages/user/setting');
+const Coupons = () => import(/* webpackChunkName: "car" */ '@/pages/user/coupons');
+const Equity = () => import(/* webpackChunkName: "car" */ '@/pages/user/equity');
+
+const Author = () => import(/* webpackChunkName: "auth" */ '@/pages/auth/auth');
 const Login = () => import(/* webpackChunkName: "login" */ '@/pages/auth/login');
+const Register = () => import(/* webpackChunkName: "login" */ '@/pages/auth/regist');
 
-const CallList = () => import(/* webpackChunkName: "list" */ '@/pages/call/list');
-const CallDetail = () => import(/* webpackChunkName: "listDetail" */ '@/pages/call/detail');
-const Called = () => import(/* webpackChunkName: "called" */ '@/pages/call/called');
-
-const Refuse = () => import(/* webpackChunkName: "listDetail" */ '@/pages/refuse/refuseScene');
-const Scene = () => import(/* webpackChunkName: "configure" */ '@/pages/scene');
-const Configure = () => import(/* webpackChunkName: "configure" */ '@/pages/scene/configure');
-const Config = () => import(/* webpackChunkName: "configure" */ '@/pages/scene/sceneConfig');
-const Audio = () => import(/* webpackChunkName: "selectAudio" */ '@/pages/scene/selectAudio');
-
-const CallSetting = () => import(/* webpackChunkName: "setting" */ '@/pages/callsetting/setting');
-const CallTest = () => import(/* webpackChunkName: "test" */ '@/pages/callsetting/test');
-
-
-const Operation = () =>import(/* webpackChunkName: "operation" */ '@/pages/operation/operation');
-const SerAgreement = () =>import(/* webpackChunkName: "operation" */ '@/pages/operation/serviceAgreement');
-
-const Feedback = () =>import(/* webpackChunkName: "feedback" */ '@/pages/feedback');
-const QA = () =>import(/* webpackChunkName: "feedback" */ '@/pages/feedback/qa');
 
 const routes =[
     {
@@ -40,17 +32,32 @@ const routes =[
         component:Home,
         name:'home',
         meta:{
-            // requireAuth:true
+            requireAuth:true,
             keepAlive:false
         },
         children:[
             {
-                path:'account',
-                component:User,
-                name:'account',
+                path:'parking/search',
+                component:Search,
+                name:'search',
                 meta:{
-                    title:'用户中心',
-                    keepAlive:false
+                    title:'ETC停车场'
+                }
+            },
+            {
+                path:'parking',
+                component:Parking,
+                name:'parking',
+                meta:{
+                    title:'停车场搜索'
+                }
+            },
+            {
+                path:'coupon',
+                component:Coupon,
+                name:'coupon',
+                meta:{
+                    title:'领券'
                 }
             },
             {
@@ -58,176 +65,78 @@ const routes =[
                 component:User,
                 name:'user',
                 meta:{
-                    title:'用户中心',
-                    keepAlive:false
+                    title:'用户中心'
                 }
             },
             {
-                path:'union',
-                component:Union,
-                name:'user',
+                path:'user/car',
+                component:Car,
+                name:'car',
                 meta:{
-                    title:'用户中心',
-                    keepAlive:false
-                }
-            },
-            //通话记录模块
-            {
-                path:'call',
-                component:CallList,
-                name:'call',
-                meta:{
-                    title:'接听记录',
-                    keepAlive:true,
-                    isUseCache:false
-                }
-            }, {
-                path: 'call/:id',
-                component: CallDetail,
-                name: 'callDetail',
-                meta: {
-                    title: '通话详情',
-                    keepAlive:false
-                }
-            }, {
-                path: 'called/:calledType',
-                component: Called,
-                name: 'Called',
-                meta: {
-                    title: '名单',
-                    keepAlive:false
-                }
-            },
-            // 拒绝场景模块
-            {
-                path: 'refuse',
-                component: Refuse,
-                name: 'Refuse',
-                meta: {
-                    title: '拒绝场景',
-                    keepAlive:false
-                }
-            },
-            //通话记录模块结束
-
-            //话术配置
-            {
-                path:'scene',
-                component:Scene,
-                name:'scene',
-                meta:{
-                    title:'话术配置',
-                    keepAlive:false
+                    title:'我的车辆'
                 }
             },
             {
-                path:'scene/audio/:scrid/:sctid',
-                component:Audio,
-                name:'audio',
+                path:'user/setting',
+                component:Setting,
+                name:'setting',
                 meta:{
-                    title:'我的助理',
-                    keepAlive:false
+                    title:'设置'
                 }
             },
             {
-                path:'scene/configure',
-                component:Configure,
-                name:'configure',
+                path:'user/coupons',
+                component:Coupons,
+                name:'coupons',
                 meta:{
-                    title:'话术配置',
-                    keepAlive:false
+                    title:'我的停车券'
                 }
             },
-            //话术配置
             {
-                path:'scene/config',
-                component:Config,
-                name:'sceneConfig',
+                path:'user/equity',
+                component:Equity,
+                name:'equity',
                 meta:{
-                    title:'话术配置',
-                    keepAlive:false
+                    title:'我的权益金'
                 }
             },
-            //话术配置结束
-            //呼叫设置模块
-            {
-                path:'tel/setting',
-                component:CallSetting,
-                name:'callSetting',
-                meta:{
-                    title:'步骤一',
-                    keepAlive:false
-                }
-            },{
-                path:'tel/test',
-                component:CallTest,
-                name:'callTest',
-                meta:{
-                    title:'步骤二',
-                    keepAlive:false
-                }
-            },
-            //呼叫设置模块结束
-            //操作说明
-            {
-                path:'operation',
-                component: Operation,
-                name:'operation',
-                meta:{
-                    title:'操作说明',
-                keepAlive:false
-                }
-            },
-            //用户反馈
-            {
-                path:'feedback',
-                component: Feedback,
-                name:'feedback',
-                meta:{
-                    title:'用户反馈',
-                    keepAlive:false
-                }
-            },{//常见问题
-                path:'feedback/qa',
-                component: QA,
-                name:'qa',
-                meta:{
-                    title:'常见问题',
-                    keepAlive:false
-                }
-            }
         ]
-    }, {
-        path:'/serAgreement',
-        component: SerAgreement,
-        name:'serAgreement',
+    },
+    {
+         path:'/author',
+         component:Author,
+         name:'author',
+         meta:{
+           title:'用户授权'
+         }
+    },
+    {
+        path:'/register',
+        component:Register,
+        name:'register',
         meta:{
-            title:'用户服务协议',
+            title:'用户注册',
             keepAlive:false
         }
     },
-    // {
-    //      path:'/author',
-    //      component:Author,
-    //      name:'author',
-    //      meta:{
-    //        title:'用户授权'
-    //      }
-    // },
     {
         path:'/login',
         component:Login,
-        name:'name',
+        name:'login',
         meta:{
            title:'用户登录',
             keepAlive:false
         }
     },
+    ...merchantRoutes,
     {
         path: '*',
         component: ()=>{
             router.push({
-                path: '/home/union'
+                path: '/login',
+                query:{
+                    openId: store.state.user.openId || ''
+                }
             })
         }
     }
@@ -235,7 +144,7 @@ const routes =[
 
 const router = new Router({
     mode: 'history',
-    base:`${ api.urlPrefix.replace(/\/api/g,'')}/unicom/wapwx/wx/`,
+    base: process.env.VUE_APP_ROOT,
     routes,
     scrollBehavior (to, from, position) {
         if (position) {
@@ -246,56 +155,84 @@ const router = new Router({
     }
 });
 
-const ua = window.navigator.userAgent.toLowerCase();
+
+let ua = window.navigator.userAgent.toLowerCase();
 
 router.beforeEach((to, from, next) => {
-
-    //url有token， 则存入sessionStorage
-    if (to.query.token){
-        store.dispatch('setUserToken', to.query.token)
-    }
+    console.log(location.href)
     if (to.meta.title) {
-        document.title = to.meta.title + '- 山东联通防骚扰'
+        document.title = 'ETC停车场 - ' + to.meta.title
     }
-    next();
 
     // if(ua.match(/MicroMessenger/i) !== 'micromessenger'&& process.env.NODE_ENV === 'production'){
     //     location.href='https://w.url.cn/s/A02CPn0';
+    //     location.href='https://w.url.cn/s/A02CPn0';
     // }
 
-    // if(ua.match(/MicroMessenger/i) == 'micromessenger'){
-    //     if(getCookie()){
-    //         next();
-    //     }else{
-    //         //跳转分享页
-    //         location.href='http://wwww.ynt.ai';
-    //     }
-    // }else{
-    //     //跳转分享页
-    //     location.href='http://wwww.ynt.ai';
-    // }
+    if(ua.match(/MicroMessenger/i) !== 'micromessenger' && to.path.indexOf('author') === -1 && to.path.indexOf('login') === -1 && to.path.indexOf('register') === -1  && to.path.indexOf('/merchant') === -1){
+        if (!store.state.user.openId){
+            next({
+                path: '/author',
+                query: { redirect: to.fullPath }
+            });
+        }else{
+            if (to.matched.some(r => r.meta.requireAuth)) {
+                if(store.state.user.userToken){
+                    next();
+                }else{
+                    next({
+                        path: '/login',
+                        query: {
+                            openId:sessionStorage.getItem('openId'),
+                            redirect: to.fullPath
+                        }
+                    });
+                }
+            }else{
+                next();
+            }
+        }
+    }else {
+        if(to.path.indexOf('/merchant') > -1){
+            if (to.matched.some(r => r.meta.requireAuth)) {
+                next();
+                // if(store.state.user.userToken){
+                //     next();
+                // }else{
+                //     next({
+                //         path: '/merchant/login',
+                //         query: {
+                //             redirect: to.fullPath
+                //         }
+                //     });
+                // }
+            }else{
+                next();
+            }
+        }else{
+            next()
+        }
+    }
 
-    // if (!store.state.user.openId
-    //         && ua.match(/MicroMessenger/i) == 'micromessenger'
-    //         && to.path.indexOf('author') < 0 ) {
-    //     next({
-    //         path: '/author',
-    //         query: { redirect: to.path == '/'? '/home/account' : to.fullPath }
-    //     });
-    // }else {
-    //     if (to.matched.some(r => r.meta.requireAuth)) {
-    //         if(store.state.user.userToken){
-    //             next();
-    //         }else{
-    //             next({
-    //                 path: '/login',
-    //                 query: { redirect: to.fullPath }
-    //             });
-    //         }
-    //     }else{
-    //         next();
-    //     }
-    // }
+});
+
+router.afterEach((to, from)=>{
+    let u = navigator.userAgent,
+        isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //g
+    if (to.matched.some(r => r.meta.requireAuth) && store.state.user.openId || to.path.indexOf('/merchant') > -1){
+        if(Number(sessionStorage.getItem('wx'))){
+            if(isAndroid){
+                setTimeout(()=>{
+                    wxShare();
+                },100)
+            }
+        }else{
+            setTimeout(()=>{
+                wxShare();
+            },100)
+        }
+    }
+
 });
 
 
