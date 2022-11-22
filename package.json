@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.5.5",
-    "@vue/cli-service": "^3.5.3",
+    "@vue/cli-service": "^5.0.8",
     "babel-plugin-import": "^1.11.0",
     "less": "^3.8.1",
     "less-loader": "^4.1.0",
@@ -24,7 +24,7 @@
     "postcss-px2rem": "^0.3.0",
     "sass-loader": "^7.1.0",
     "style-resources-loader": "^1.2.1",
-    "svg-sprite-loader": "^4.1.6",
+    "svg-sprite-loader": "^6.0.11",
     "vue-cli-plugin-style-resources-loader": "^0.1.3",
     "vue-cli-plugin-vconsole": "^1.0.1",
     "vue-template-compiler": "^2.5.21",
